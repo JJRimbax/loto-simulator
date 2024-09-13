@@ -113,10 +113,10 @@ export default function App() {
       return;
     }
 
-    // Déduire le coût du solde
-    setSolde(solde - coutTotalGrilles);
-    setTotalDepense(totalDepense + coutTotalGrilles);
-    setNombreTours(nombreTours + 1);
+    // Déduire le coût du solde en utilisant la forme fonctionnelle
+    setSolde((prevSolde) => prevSolde - coutTotalGrilles);
+    setTotalDepense((prevTotalDepense) => prevTotalDepense + coutTotalGrilles);
+    setNombreTours((prevNombreTours) => prevNombreTours + 1);
 
     // Simuler le tirage
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
@@ -190,13 +190,13 @@ export default function App() {
       });
 
       if (!jackpotGagne) {
-        setJackpot(jackpot + 1000000); // Incrémenter le jackpot de 1 million
+        setJackpot((prevJackpot) => prevJackpot + 1000000); // Incrémenter le jackpot de 1 million
       }
 
-      // Mettre à jour les états
-      setMeilleurGain(newMeilleurGain);
-      setTotalGains(totalGains + gainTotalTour);
-      setSolde(solde + gainTotalTour);
+      // Mettre à jour les états en utilisant la forme fonctionnelle
+      setMeilleurGain((prevMeilleurGain) => (gainTotalTour > prevMeilleurGain && typeof gainTotalTour === 'number' ? gainTotalTour : prevMeilleurGain));
+      setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
+      setSolde((prevSolde) => prevSolde + gainTotalTour);
 
       // Afficher les résultats
       setResultat(
@@ -224,7 +224,7 @@ export default function App() {
       if (isNaN(montant) || montant <= 0) {
         throw new Error('Veuillez entrer un montant valide.');
       }
-      setSolde(solde + montant);
+      setSolde((prevSolde) => prevSolde + montant);
       setDepot('');
     } catch (error) {
       Alert.alert('Erreur', error.message);
@@ -238,9 +238,11 @@ export default function App() {
 
   // Fonction pour activer/désactiver le second tirage
   const toggleSecondTirage = (index) => {
-    const newGrilles = [...grilles];
-    newGrilles[index].secondTirage = !newGrilles[index].secondTirage;
-    setGrilles(newGrilles);
+    setGrilles((prevGrilles) => {
+      const newGrilles = [...prevGrilles];
+      newGrilles[index].secondTirage = !newGrilles[index].secondTirage;
+      return newGrilles;
+    });
   };
 
   // Fonctions utilitaires pour générer des nombres aléatoires
@@ -544,7 +546,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop: 100,
+    marginTop:100,
     flex: 1,
   },
   content: {
