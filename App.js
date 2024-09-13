@@ -43,6 +43,7 @@ export default function App() {
   const [displaySecondTirage, setDisplaySecondTirage] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [grillesModalVisible, setGrillesModalVisible] = useState(false); // Nouvelle modal pour les grilles jouées
 
   // Références pour les animations
   const tirageAnim = useRef(new Animated.Value(0)).current;
@@ -312,7 +313,7 @@ export default function App() {
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <View style={styles.content}>
+          <ScrollView contentContainerStyle={styles.content}>
             <Text style={styles.title}>Simulateur de Loto</Text>
 
             {/* Afficher le jackpot */}
@@ -364,35 +365,15 @@ export default function App() {
               <Text style={styles.buttonText}>Ajouter Grille</Text>
             </TouchableOpacity>
 
-            {/* Conteneur scrollable pour les grilles */}
-            <View style={styles.grillesContainer}>
-              <Text style={styles.sectionTitle}>Vos Grilles:</Text>
-              <ScrollView style={styles.grillesScroll}>
-                {grilles.map((grille, index) => (
-                  <View key={index} style={styles.grille}>
-                    <View style={styles.grilleNumeros}>
-                      {grille.numeros.map((num, idx) => (
-                        <View key={idx} style={styles.numeroBallGrille}>
-                          <Text style={styles.numeroTextGrille}>{num}</Text>
-                        </View>
-                      ))}
-                      <View style={[styles.numeroBallGrille, styles.chanceBallGrille]}>
-                        <Text style={styles.numeroTextGrille}>{grille.chance}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.switchContainer}>
-                      <Text style={styles.switchLabel}>Second Tirage:</Text>
-                      <Switch
-                        value={grille.secondTirage}
-                        onValueChange={() => toggleSecondTirage(index)}
-                        trackColor={{ false: '#767577', true: '#81b0ff' }}
-                        thumbColor={grille.secondTirage ? '#f5dd4b' : '#f4f3f4'}
-                      />
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
+            {/* Bouton pour afficher les grilles jouées */}
+            {grilles.length > 0 && (
+              <TouchableOpacity
+                style={styles.grillesButton}
+                onPress={() => setGrillesModalVisible(true)}
+              >
+                <Text style={styles.buttonText}>Grilles Jouées ({grilles.length})</Text>
+              </TouchableOpacity>
+            )}
 
             {/* Bouton pour réinitialiser les grilles */}
             {grilles.length > 0 && (
@@ -433,7 +414,54 @@ export default function App() {
             >
               <Text style={styles.buttonText}>Jouer</Text>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
+
+          {/* Modal pour afficher les grilles jouées */}
+          <Modal
+            visible={grillesModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setGrillesModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {/* Bouton pour fermer la modal */}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setGrillesModalVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>✖</Text>
+                </TouchableOpacity>
+
+                <ScrollView>
+                  <Text style={styles.sectionTitle}>Grilles Jouées:</Text>
+                  {grilles.map((grille, index) => (
+                    <View key={index} style={styles.grille}>
+                      <View style={styles.grilleNumeros}>
+                        {grille.numeros.map((num, idx) => (
+                          <View key={idx} style={styles.numeroBallGrille}>
+                            <Text style={styles.numeroTextGrille}>{num}</Text>
+                          </View>
+                        ))}
+                        <View style={[styles.numeroBallGrille, styles.chanceBallGrille]}>
+                          <Text style={styles.numeroTextGrille}>{grille.chance}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.switchContainer}>
+                        <Text style={styles.switchLabel}>Second Tirage:</Text>
+                        <Switch
+                          value={grille.secondTirage}
+                          onValueChange={() => toggleSecondTirage(index)}
+                          trackColor={{ false: '#767577', true: '#81b0ff' }}
+                          thumbColor={grille.secondTirage ? '#f5dd4b' : '#f4f3f4'}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
 
           {/* Modal pour afficher les résultats */}
           <Modal
@@ -523,7 +551,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 10,
-    flex: 1,
+    flexGrow: 1, // Permet au contenu de prendre toute la hauteur disponible
   },
   title: {
     fontSize: 24, // Taille uniforme
@@ -598,66 +626,20 @@ const styles = StyleSheet.create({
     width: '60%',
     alignItems: 'center',
   },
+  grillesButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 5,
+    width: '60%',
+    alignItems: 'center',
+  },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontSize: 16, // Taille uniforme
     fontWeight: 'bold',
-  },
-  grillesContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  grillesScroll: {
-    maxHeight: 200, // Hauteur augmentée pour plus de visibilité
-    width: '100%',
-  },
-  grille: {
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-    padding: 10,
-    marginBottom: 5,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    width: '90%',
-    alignItems: 'center',
-  },
-  grilleNumeros: {
-    flexDirection: 'row',
-    marginTop: 5,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  numeroBallGrille: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#0055A4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 2,
-    borderWidth: 1,
-    borderColor: '#0055A4',
-  },
-  chanceBallGrille: {
-    backgroundColor: '#E50000',
-    borderColor: '#E50000',
-  },
-  numeroTextGrille: {
-    color: '#FFFFFF', // Texte en blanc pour le numéro chance
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  switchLabel: {
-    fontSize: 14,
-    color: '#333333',
-    marginRight: 10,
   },
   resetButton: {
     backgroundColor: '#E50000',
@@ -696,6 +678,52 @@ const styles = StyleSheet.create({
     width: '60%',
     alignItems: 'center',
   },
+  grille: {
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    padding: 10,
+    marginBottom: 5,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    width: '90%',
+    alignItems: 'center',
+  },
+  grilleNumeros: {
+    flexDirection: 'row',
+    marginTop: 5,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  numeroBallGrille: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#0055A4', // Bleu pour les numéros principaux
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+    borderWidth: 1,
+    borderColor: '#0055A4',
+  },
+  chanceBallGrille: {
+    backgroundColor: '#E50000', // Rouge pour le numéro chance
+    borderColor: '#E50000',
+  },
+  numeroTextGrille: {
+    color: '#FFFFFF', // Texte en blanc pour le numéro chance
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  switchLabel: {
+    fontSize: 14,
+    color: '#333333',
+    marginRight: 10,
+  },
   tirageSection: {
     marginBottom: 10,
     alignItems: 'center',
@@ -724,7 +752,7 @@ const styles = StyleSheet.create({
     margin: 3,
   },
   chanceBallTirage: {
-    backgroundColor: '#E50000',
+    backgroundColor: '#E50000', // Rouge pour le numéro chance
   },
   numeroText: {
     color: '#FFFFFF',
