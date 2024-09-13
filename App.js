@@ -18,6 +18,7 @@ import {
   Switch,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône étoile
 
 // Fonction utilitaire pour formater les montants avec des espaces
 const formatMontant = (montant) => {
@@ -31,7 +32,7 @@ export default function App() {
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState('');
-  const [resultat, setResultat] = useState('');
+  const [resultatsGrilles, setResultatsGrilles] = useState([]); // Nouvelle variable d'état pour les résultats détaillés
   const [totalGains, setTotalGains] = useState(0);
   const [nombreTours, setNombreTours] = useState(0);
   const [totalDepense, setTotalDepense] = useState(0);
@@ -141,11 +142,11 @@ export default function App() {
         setDisplaySecondTirage(false);
       }
 
-      // Calculer les gains
+      // Calculer les gains et préparer les résultats détaillés
       let gainTotalTour = 0;
       let newMeilleurGain = meilleurGain;
-      let messageResultat = '';
       let jackpotGagne = false;
+      const tempResultatsGrilles = [];
 
       grilles.forEach((grille, index) => {
         const gain = calculerGains(
@@ -158,38 +159,51 @@ export default function App() {
           numerosTirage.includes(num)
         );
 
-        if (gain === 'Jackpot') {
-          gainTotalTour += jackpot;
-          jackpotGagne = true;
-          setJackpot(2000000); // Réinitialiser le jackpot
-          messageResultat += `🎉 JACKPOT ! Vous avez gagné à la grille ${index + 1}\n`;
-        } else if (gain > 0) {
-          gainTotalTour += gain;
-          messageResultat += `✅ Grille ${index + 1}: Vous avez trouvé ${numerosTrouves.length} numéro(s): ${numerosTrouves.join(
-            ', '
-          )}. Gains: ${gain}€\n`;
-        } else {
-          messageResultat += `❌ Grille ${index + 1}: Aucun numéro trouvé.\n`;
-        }
+        // Vérifier si le numéro chance est trouvé
+        const chanceTrouve = grille.chance === numeroChanceTire;
 
-        if (gain > newMeilleurGain && typeof gain === 'number') {
-          newMeilleurGain = gain;
-        }
-
-        // Gérer les gains du second tirage
+        let gainSecond = 0;
         if (grille.secondTirage && numerosSecondTirage.length === 5) {
-          const gainSecond = calculerGains(
+          gainSecond = calculerGains(
             grille.numeros,
             0,
             numerosSecondTirage,
             0,
             true
           );
-          gainTotalTour += gainSecond;
-          if (gainSecond > 0) {
-            messageResultat += `🎯 Grille ${index + 1}: Gains du second tirage: ${gainSecond}€\n`;
+        }
+
+        let gainTotalGrille = 0;
+        let gainAffiche = null;
+
+        if (gain === 'Jackpot') {
+          gainTotalGrille += jackpot;
+          jackpotGagne = true;
+          setJackpot(2000000); // Réinitialiser le jackpot
+          gainAffiche = jackpot;
+        } else if (gain > 0) {
+          gainTotalGrille += gain;
+          gainAffiche = gain;
+        }
+
+        if (gainSecond > 0) {
+          gainTotalGrille += gainSecond;
+          gainAffiche = gainAffiche ? gainAffiche + gainSecond : gainSecond;
+        }
+
+        if (gainTotalGrille > 0) {
+          gainTotalTour += gainTotalGrille;
+          if (gainTotalGrille > newMeilleurGain) {
+            newMeilleurGain = gainTotalGrille;
           }
         }
+
+        tempResultatsGrilles.push({
+          numeros: grille.numeros,
+          numerosTrouves: numerosTrouves,
+          chanceTrouve: chanceTrouve,
+          gain: gainTotalGrille > 0 ? gainTotalGrille : null,
+        });
       });
 
       if (!jackpotGagne) {
@@ -200,20 +214,7 @@ export default function App() {
       setMeilleurGain((prevMeilleurGain) => (gainTotalTour > prevMeilleurGain && typeof gainTotalTour === 'number' ? gainTotalTour : prevMeilleurGain));
       setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
       setSolde((prevSolde) => prevSolde + gainTotalTour);
-
-      // Afficher les résultats
-      setResultat(
-        `🔔 Tour n°${nombreTours}\n\n💰 Gain de ce tour: ${formatMontant(
-          gainTotalTour
-        )}€\n🏆 Meilleur gain: ${formatMontant(
-          newMeilleurGain
-        )}€\n🎖️ Gains cumulés: ${formatMontant(
-          totalGains + gainTotalTour
-        )}€\n\n${messageResultat}`
-      );
-
-      // **Suppression de la Réinitialisation Automatique des Grilles**
-      // Les grilles restent pour permettre de les rejouer
+      setResultatsGrilles(tempResultatsGrilles);
 
       // Afficher la modal avec les résultats
       setModalVisible(true);
@@ -412,10 +413,9 @@ export default function App() {
               </View>
             </View>
 
-            {/* Afficher le solde et le total dépensé */}
-            <View style={styles.soldeSection}>
+            {/* Afficher le solde dans la vue principale sous la section de dépôt */}
+            <View style={styles.soldeSectionMain}>
               <Text style={styles.soldeText}>💳 Solde actuel: {formatMontant(solde)}€</Text>
-              <Text style={styles.soldeText}>💸 Total dépensé: {formatMontant(totalDepense)}€</Text>
             </View>
 
             {/* Bouton pour jouer */}
@@ -503,6 +503,19 @@ export default function App() {
                 </TouchableOpacity>
 
                 <ScrollView>
+                  {/* Informations de gains dans la modal */}
+                  {!isAnimating && (
+                    <View style={styles.gainsInfoSection}>
+                      <Text style={styles.sectionTitle}>Résumé des Gains:</Text>
+                      <View style={styles.gainsInfo}>
+                        <Text style={styles.gainsText}>💰 Cumul des gains: {formatMontant(totalGains)}€</Text>
+                        <Text style={styles.gainsText}>🏆 Meilleur gain: {formatMontant(meilleurGain)}€</Text>
+                        <Text style={styles.gainsText}>💸 Total dépensé: {formatMontant(totalDepense)}€</Text>
+                        <Text style={styles.gainsText}>🎟️ Nombre de tours: {nombreTours}</Text>
+                      </View>
+                    </View>
+                  )}
+
                   {/* Afficher les numéros tirés */}
                   {!isAnimating && numerosTirage.length > 0 && (
                     <View style={styles.tirageSection}>
@@ -534,10 +547,56 @@ export default function App() {
                     </View>
                   )}
 
-                  {/* Afficher les résultats */}
-                  {resultat !== '' && (
+                  {/* Afficher les résultats détaillés des grilles */}
+                  {resultatsGrilles.length > 0 && (
                     <View style={styles.resultSection}>
-                      <Text style={styles.resultText}>{resultat}</Text>
+                      <Text style={styles.sectionTitle}>Résultats des Grilles:</Text>
+                      {resultatsGrilles.map((resultat, index) => (
+                        <View key={index} style={styles.resultGrille}>
+                          <Text style={styles.resultGrilleTitle}>Grille {index + 1}:</Text>
+                          <View style={styles.resultNumerosContainer}>
+                            {resultat.numeros.map((num, idx) => {
+                              const estTrouve = resultat.numerosTrouves.includes(num);
+                              return (
+                                <View
+                                  key={idx}
+                                  style={[
+                                    styles.numeroBallResult,
+                                    estTrouve ? styles.numeroTrouve : styles.numeroNonTrouve
+                                  ]}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.numeroTextResult,
+                                      estTrouve ? styles.textTrouve : styles.textNonTrouve
+                                    ]}
+                                  >
+                                    {num}
+                                  </Text>
+                                </View>
+                              );
+                            })}
+                            {/* Afficher le numéro chance avec la couleur conditionnelle */}
+                            <View style={[
+                              styles.numeroBallResult,
+                              resultat.chanceTrouve ? styles.chanceBallResult : styles.chanceBallNonTrouve
+                            ]}>
+                              <Text style={[
+                                styles.numeroTextResult,
+                                resultat.chanceTrouve ? styles.textChanceResult : styles.textChanceNonTrouve
+                              ]}>
+                                {grilles[index].chance}
+                              </Text>
+                            </View>
+                          </View>
+                          {resultat.gain && (
+                            <View style={styles.gainContainer}>
+                              <FontAwesome name="star" size={16} color="#0055A4" style={{ marginRight: 5 }} />
+                              <Text style={styles.gainText}>{formatMontant(resultat.gain)}€</Text>
+                            </View>
+                          )}
+                        </View>
+                      ))}
                     </View>
                   )}
                 </ScrollView>
@@ -556,7 +615,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop: 100,
+    marginTop: 90,
     flex: 1,
   },
   content: {
@@ -669,7 +728,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginLeft: 5,
   },
-  soldeSection: {
+  soldeSectionMain: {
     alignItems: 'center',
     marginVertical: 10,
   },
@@ -777,11 +836,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  gainsInfoSection: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  gainsInfo: {
+    alignItems: 'center',
+  },
+  gainsText: {
+    fontSize: 16,
+    color: '#333333',
+    marginVertical: 2,
+  },
   resultSection: {
     marginVertical: 10,
     padding: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 5,
+    width: '100%',
   },
   resultText: {
     fontSize: 14,
@@ -808,9 +880,82 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   tirageNumeros: {
-    flexDirection: 'row', // Assure une disposition horizontale
+    flexDirection: 'row', // Disposition horizontale
     flexWrap: 'nowrap', // Empêche le retour à la ligne
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  resultGrille: {
+    marginBottom: 15,
+  },
+  resultGrilleTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#333333',
+  },
+  resultNumerosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
+  numeroBallResult: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+    borderWidth: 1,
+    borderColor: '#0055A4',
+  },
+  numeroTrouve: {
+    backgroundColor: '#0055A4', // Bleu pour les numéros trouvés
+    borderColor: '#0055A4',
+  },
+  numeroNonTrouve: {
+    backgroundColor: '#6c757d', // Gris pour les numéros non trouvés
+    borderColor: '#6c757d',
+  },
+  numeroTextResult: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  textTrouve: {
+    color: '#FFFFFF',
+  },
+  textNonTrouve: {
+    color: '#FFFFFF',
+  },
+  chanceBallResult: {
+    backgroundColor: '#E50000', // Rouge pour le numéro chance trouvé
+    borderColor: '#E50000',
+  },
+  chanceBallNonTrouve: {
+    backgroundColor: 'rgba(229, 0, 0, 0.5)', // Rouge avec opacité réduite pour le numéro chance non trouvé
+    borderColor: 'rgba(229, 0, 0, 0.5)',
+  },
+  textChanceResult: {
+    color: '#FFFFFF',
+  },
+  textChanceNonTrouve: {
+    color: '#FFFFFF',
+  },
+  gainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#0055A4',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  gainText: {
+    fontSize: 14,
+    color: '#0055A4',
+    fontWeight: 'bold',
   },
 });
