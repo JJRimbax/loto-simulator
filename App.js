@@ -209,8 +209,8 @@ export default function App() {
         )}€\n\n${messageResultat}`
       );
 
-      // Réinitialiser les grilles
-      setGrilles([]);
+      // **Suppression de la Réinitialisation des Grilles**
+      // setGrilles([]); // Cette ligne est supprimée pour conserver les grilles après un tour
 
       // Afficher la modal avec les résultats
       setModalVisible(true);
@@ -233,7 +233,14 @@ export default function App() {
 
   // Fonction pour réinitialiser les grilles
   const reinitialiserGrilles = () => {
-    setGrilles([]);
+    Alert.alert(
+      'Confirmer',
+      'Voulez-vous vraiment réinitialiser toutes les grilles?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Réinitialiser', onPress: () => setGrilles([]) },
+      ]
+    );
   };
 
   // Fonction pour activer/désactiver le second tirage
