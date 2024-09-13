@@ -1,17 +1,23 @@
 // App.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Button,
   TextInput,
   Alert,
-  ScrollView,
   TouchableOpacity,
   Animated,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  Switch,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Fonction utilitaire pour formater les montants avec des espaces
 const formatMontant = (montant) => {
@@ -36,6 +42,7 @@ export default function App() {
   const [numerosSecondTirage, setNumerosSecondTirage] = useState([]);
   const [displaySecondTirage, setDisplaySecondTirage] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // Références pour les animations
   const tirageAnim = useRef(new Animated.Value(0)).current;
@@ -140,11 +147,11 @@ export default function App() {
         const gain = calculerGains(
           grille.numeros,
           grille.chance,
-          numerosTires,
+          numerosTirage,
           numeroChanceTire
         );
         const numerosTrouves = grille.numeros.filter(num =>
-          numerosTires.includes(num)
+          numerosTirage.includes(num)
         );
 
         if (gain === 'Jackpot') {
@@ -166,7 +173,7 @@ export default function App() {
         }
 
         // Gérer les gains du second tirage
-        if (grille.secondTirage && displaySecondTirage) {
+        if (grille.secondTirage && numerosSecondTirage.length === 5) {
           const gainSecond = calculerGains(
             grille.numeros,
             0,
@@ -203,6 +210,9 @@ export default function App() {
 
       // Réinitialiser les grilles
       setGrilles([]);
+
+      // Afficher la modal avec les résultats
+      setModalVisible(true);
     });
   };
 
@@ -296,342 +306,459 @@ export default function App() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Simulateur de Loto</Text>
+    <LinearGradient colors={['#0055A4', '#FFFFFF']} style={styles.background}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={styles.content}>
+            <Text style={styles.title}>Simulateur de Loto</Text>
 
-      {/* Afficher le jackpot */}
-      <Text style={styles.jackpot}>Jackpot: {formatMontant(jackpot)}€</Text>
+            {/* Afficher le jackpot */}
+            <Text style={styles.jackpot}>Jackpot: {formatMontant(jackpot)}€</Text>
 
-      {/* Entrée pour les numéros */}
-      <View style={styles.inputSection}>
-        <Text style={styles.sectionTitle}>Numéros (1-49):</Text>
-        <View style={styles.numerosContainer}>
-          {numerosInput.map((num, index) => (
-            <TextInput
-              key={index}
-              style={styles.input}
-              keyboardType='numeric'
-              maxLength={2}
-              value={num}
-              onChangeText={(text) => {
-                const newNumeros = [...numerosInput];
-                newNumeros[index] = text.replace(/[^0-9]/g, '');
-                setNumerosInput(newNumeros);
-              }}
-            />
-          ))}
-          <TouchableOpacity style={styles.flashButton} onPress={flashNumeros}>
-            <Text style={styles.flashButtonText}>Flash</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            {/* Entrée pour les numéros */}
+            <View style={styles.inputSection}>
+              <Text style={styles.sectionTitle}>Numéros (1-49):</Text>
+              <View style={styles.numerosContainer}>
+                {numerosInput.map((num, index) => (
+                  <TextInput
+                    key={index}
+                    style={styles.input}
+                    keyboardType="numeric"
+                    maxLength={2}
+                    value={num}
+                    onChangeText={(text) => {
+                      const newNumeros = [...numerosInput];
+                      newNumeros[index] = text.replace(/[^0-9]/g, '');
+                      setNumerosInput(newNumeros);
+                    }}
+                  />
+                ))}
+                <TouchableOpacity style={styles.flashButton} onPress={flashNumeros}>
+                  <Text style={styles.flashButtonText}>Flash</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-      {/* Entrée pour le numéro chance */}
-      <View style={styles.inputSection}>
-        <Text style={styles.sectionTitle}>Numéro Chance (1-10):</Text>
-        <View style={styles.numerosContainer}>
-          <TextInput
-            style={styles.input}
-            keyboardType='numeric'
-            maxLength={2}
-            value={numeroChanceInput}
-            onChangeText={(text) =>
-              setNumeroChanceInput(text.replace(/[^0-9]/g, ''))
-            }
-          />
-          <TouchableOpacity
-            style={styles.flashButton}
-            onPress={flashNumeroChance}
-          >
-            <Text style={styles.flashButtonText}>Flash</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            {/* Entrée pour le numéro chance */}
+            <View style={styles.inputSection}>
+              <Text style={styles.sectionTitle}>Numéro Chance (1-10):</Text>
+              <View style={styles.numerosContainer}>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={numeroChanceInput}
+                  onChangeText={(text) => setNumeroChanceInput(text.replace(/[^0-9]/g, ''))}
+                />
+                <TouchableOpacity style={styles.flashButton} onPress={flashNumeroChance}>
+                  <Text style={styles.flashButtonText}>Flash</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-      {/* Bouton pour ajouter la grille */}
-      <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
-        <Text style={styles.addButtonText}>Ajouter Grille</Text>
-      </TouchableOpacity>
+            {/* Bouton pour ajouter la grille */}
+            <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
+              <Text style={styles.buttonText}>Ajouter Grille</Text>
+            </TouchableOpacity>
 
-      {/* Afficher les grilles */}
-      <View style={styles.grillesSection}>
-        <Text style={styles.sectionTitle}>Vos Grilles:</Text>
-        {grilles.map((grille, index) => (
-          <View key={index} style={styles.grille}>
-            <Text style={styles.grilleText}>Grille {index + 1}:</Text>
-            <Text style={styles.grilleText}>
-              {grille.numeros.join(', ')} | Chance: {grille.chance}
-            </Text>
+            {/* Conteneur scrollable pour les grilles */}
+            <View style={styles.grillesContainer}>
+              <Text style={styles.sectionTitle}>Vos Grilles:</Text>
+              <ScrollView style={styles.grillesScroll}>
+                {grilles.map((grille, index) => (
+                  <View key={index} style={styles.grille}>
+                    <View style={styles.grilleNumeros}>
+                      {grille.numeros.map((num, idx) => (
+                        <View key={idx} style={styles.numeroBallGrille}>
+                          <Text style={styles.numeroTextGrille}>{num}</Text>
+                        </View>
+                      ))}
+                      <View style={[styles.numeroBallGrille, styles.chanceBallGrille]}>
+                        <Text style={styles.numeroTextGrille}>{grille.chance}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.switchContainer}>
+                      <Text style={styles.switchLabel}>Second Tirage:</Text>
+                      <Switch
+                        value={grille.secondTirage}
+                        onValueChange={() => toggleSecondTirage(index)}
+                        trackColor={{ false: '#767577', true: '#81b0ff' }}
+                        thumbColor={grille.secondTirage ? '#f5dd4b' : '#f4f3f4'}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Bouton pour réinitialiser les grilles */}
+            {grilles.length > 0 && (
+              <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
+                <Text style={styles.buttonText}>Réinitialiser les Grilles</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Dépôt de solde */}
+            <View style={styles.inputSection}>
+              <Text style={styles.sectionTitle}>Déposer Solde:</Text>
+              <View style={styles.numerosContainer}>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={depot}
+                  onChangeText={(text) => setDepot(text.replace(/[^0-9.]/g, ''))}
+                  placeholder="Montant"
+                  placeholderTextColor="#AAAAAA"
+                />
+                <TouchableOpacity style={styles.depotButton} onPress={deposerSolde}>
+                  <Text style={styles.buttonText}>Déposer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Afficher le solde et le total dépensé */}
+            <View style={styles.soldeSection}>
+              <Text style={styles.soldeText}>💳 Solde actuel: {formatMontant(solde)}€</Text>
+              <Text style={styles.soldeText}>💸 Total dépensé: {formatMontant(totalDepense)}€</Text>
+            </View>
+
+            {/* Bouton pour jouer */}
             <TouchableOpacity
-              onPress={() => toggleSecondTirage(index)}
-              style={styles.secondTirageButton}
+              style={styles.playButton}
+              onPress={jouer}
+              disabled={isAnimating}
             >
-              <Text style={styles.secondTirageText}>
-                {grille.secondTirage
-                  ? 'Second Tirage: Oui'
-                  : 'Second Tirage: Non'}
-              </Text>
+              <Text style={styles.buttonText}>Jouer</Text>
             </TouchableOpacity>
           </View>
-        ))}
-        {grilles.length > 0 && (
-          <TouchableOpacity
-            style={styles.resetButton}
-            onPress={reinitialiserGrilles}
+
+          {/* Modal pour afficher les résultats */}
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setModalVisible(false)}
           >
-            <Text style={styles.resetButtonText}>Réinitialiser les Grilles</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {/* Bouton pour fermer la modal */}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>✖</Text>
+                </TouchableOpacity>
 
-      {/* Dépôt de solde */}
-      <View style={styles.inputSection}>
-        <Text style={styles.sectionTitle}>Déposer Solde:</Text>
-        <View style={styles.numerosContainer}>
-          <TextInput
-            style={styles.input}
-            keyboardType='numeric'
-            value={depot}
-            onChangeText={(text) => setDepot(text.replace(/[^0-9.]/g, ''))}
-          />
-          <TouchableOpacity style={styles.depotButton} onPress={deposerSolde}>
-            <Text style={styles.depotButtonText}>Déposer</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+                <ScrollView>
+                  {/* Afficher le tirage avec animation */}
+                  {isAnimating && (
+                    <View style={styles.tirageSection}>
+                      <Text style={styles.sectionTitle}>Tirage en cours...</Text>
+                      <Animated.View style={{ opacity: tirageAnim }}>
+                        <Text style={styles.tirageText}>🎲 🎲 🎲 🎲 🎲</Text>
+                      </Animated.View>
+                    </View>
+                  )}
 
-      {/* Afficher le solde et le total dépensé */}
-      <View style={styles.soldeSection}>
-        <Text style={styles.soldeText}>
-          💳 Solde actuel: {formatMontant(solde)}€
-        </Text>
-        <Text style={styles.soldeText}>
-          💸 Total dépensé: {formatMontant(totalDepense)}€
-        </Text>
-      </View>
+                  {/* Afficher les numéros tirés */}
+                  {!isAnimating && numerosTirage.length > 0 && (
+                    <View style={styles.tirageSection}>
+                      <Text style={styles.sectionTitle}>Numéros Tirés:</Text>
+                      <View style={styles.tirageNumeros}>
+                        {numerosTirage.map((num, index) => (
+                          <View key={index} style={styles.numeroBallTirage}>
+                            <Text style={styles.numeroText}>{num}</Text>
+                          </View>
+                        ))}
+                        <View style={[styles.numeroBallTirage, styles.chanceBallTirage]}>
+                          <Text style={styles.numeroText}>{numeroChanceTirage}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
 
-      {/* Bouton pour jouer */}
-      <TouchableOpacity
-        style={styles.playButton}
-        onPress={jouer}
-        disabled={isAnimating}
-      >
-        <Text style={styles.playButtonText}>Jouer</Text>
-      </TouchableOpacity>
+                  {/* Afficher le second tirage */}
+                  {displaySecondTirage && numerosSecondTirage.length === 5 && (
+                    <View style={styles.tirageSection}>
+                      <Text style={styles.sectionTitle}>Second Tirage:</Text>
+                      <View style={styles.tirageNumeros}>
+                        {numerosSecondTirage.map((num, index) => (
+                          <View key={index} style={styles.numeroBallTirage}>
+                            <Text style={styles.numeroText}>{num}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
 
-      {/* Afficher les résultats */}
-      {resultat !== '' && (
-        <View style={styles.resultSection}>
-          <Text style={styles.resultText}>{resultat}</Text>
-        </View>
-      )}
-
-      {/* Afficher le tirage avec animation */}
-      {isAnimating && (
-        <View style={styles.tirageSection}>
-          <Text style={styles.sectionTitle}>Tirage en cours...</Text>
-          <Animated.View style={{ opacity: tirageAnim }}>
-            <Text style={styles.tirageText}>🎲 🎲 🎲 🎲 🎲</Text>
-          </Animated.View>
-        </View>
-      )}
-
-      {!isAnimating && numerosTirage.length > 0 && (
-        <View style={styles.tirageSection}>
-          <Text style={styles.sectionTitle}>Numéros Tirés:</Text>
-          <View style={styles.tirageNumeros}>
-            {numerosTirage.map((num, index) => (
-              <View key={index} style={styles.numeroBall}>
-                <Text style={styles.numeroText}>{num}</Text>
+                  {/* Afficher les résultats */}
+                  {resultat !== '' && (
+                    <View style={styles.resultSection}>
+                      <Text style={styles.resultText}>{resultat}</Text>
+                    </View>
+                  )}
+                </ScrollView>
               </View>
-            ))}
-            <View style={[styles.numeroBall, styles.chanceBall]}>
-              <Text style={styles.numeroText}>{numeroChanceTirage}</Text>
             </View>
-          </View>
-        </View>
-      )}
-
-      {/* Afficher le second tirage */}
-      {displaySecondTirage && !isAnimating && (
-        <View style={styles.tirageSection}>
-          <Text style={styles.sectionTitle}>Second Tirage:</Text>
-          <View style={styles.tirageNumeros}>
-            {numerosSecondTirage.map((num, index) => (
-              <View key={index} style={styles.numeroBall}>
-                <Text style={styles.numeroText}>{num}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-    </ScrollView>
+          </Modal>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </LinearGradient>
   );
 }
 
 // Styles pour l'application
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   container: {
-    padding: 20,
-    backgroundColor: '#fff',
+    marginTop: 100,
+    flex: 1,
+  },
+  content: {
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flex: 1,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24, // Taille uniforme
     textAlign: 'center',
-    marginVertical: 20,
-    color: '#4A90E2',
+    color: '#FFFFFF',
     fontWeight: 'bold',
+    marginVertical: 10,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   jackpot: {
-    fontSize: 22,
-    color: '#E67E22',
+    fontSize: 20, // Taille uniforme
+    color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   inputSection: {
-    marginBottom: 20,
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 10,
   },
   sectionTitle: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: '#2C3E50',
+    fontSize: 16, // Taille uniforme
+    marginBottom: 8,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   numerosContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#2980B9',
-    padding: 5,
-    width: 50,
-    marginRight: 5,
+    borderColor: '#FFFFFF',
+    padding: 8,
+    width: 45, // Taille uniforme
+    margin: 3,
     textAlign: 'center',
     borderRadius: 5,
-    backgroundColor: '#ECF0F1',
-    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    fontSize: 16, // Taille uniforme
   },
   flashButton: {
-    backgroundColor: '#27AE60',
-    padding: 10,
+    backgroundColor: '#E50000',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
+    marginLeft: 5,
   },
   flashButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 14, // Taille uniforme
   },
   addButton: {
-    backgroundColor: '#2980B9',
-    padding: 15,
+    backgroundColor: '#E50000',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 5,
-    marginBottom: 20,
+    marginVertical: 10,
+    width: '60%',
+    alignItems: 'center',
   },
-  addButtonText: {
+  buttonText: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 16, // Taille uniforme
     fontWeight: 'bold',
   },
-  grillesSection: {
-    marginBottom: 20,
+  grillesContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  grillesScroll: {
+    maxHeight: 200, // Hauteur augmentée pour plus de visibilité
+    width: '100%',
   },
   grille: {
     borderWidth: 1,
-    borderColor: '#95A5A6',
+    borderColor: '#FFFFFF',
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 5,
     borderRadius: 5,
-    backgroundColor: '#F2F3F4',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    width: '90%',
+    alignItems: 'center',
   },
-  grilleText: {
-    fontSize: 16,
-    color: '#2C3E50',
-  },
-  secondTirageButton: {
+  grilleNumeros: {
+    flexDirection: 'row',
     marginTop: 5,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
-  secondTirageText: {
-    color: '#16A085',
+  numeroBallGrille: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#0055A4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+    borderWidth: 1,
+    borderColor: '#0055A4',
+  },
+  chanceBallGrille: {
+    backgroundColor: '#E50000',
+    borderColor: '#E50000',
+  },
+  numeroTextGrille: {
+    color: '#FFFFFF', // Texte en blanc pour le numéro chance
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  switchLabel: {
+    fontSize: 14,
+    color: '#333333',
+    marginRight: 10,
   },
   resetButton: {
-    backgroundColor: '#C0392B',
-    padding: 10,
+    backgroundColor: '#E50000',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 5,
-  },
-  resetButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold',
+    marginTop: 10,
+    width: '60%',
+    alignItems: 'center',
   },
   depotButton: {
-    backgroundColor: '#8E44AD',
-    padding: 10,
+    backgroundColor: '#E50000',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
-  },
-  depotButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    marginLeft: 5,
   },
   soldeSection: {
-    marginBottom: 20,
+    alignItems: 'center',
+    marginVertical: 10,
   },
   soldeText: {
     fontSize: 16,
-    color: '#2C3E50',
-    marginBottom: 5,
+    color: '#FFFFFF',
+    marginBottom: 2,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   playButton: {
-    backgroundColor: '#E67E22',
-    padding: 15,
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 5,
-    marginBottom: 20,
-  },
-  playButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  resultSection: {
-    marginVertical: 20,
-    padding: 10,
-    backgroundColor: '#ECF0F1',
-    borderRadius: 5,
-  },
-  resultText: {
-    fontSize: 16,
-    color: '#2C3E50',
+    marginVertical: 10,
+    width: '60%',
+    alignItems: 'center',
   },
   tirageSection: {
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: 'center',
   },
   tirageText: {
-    fontSize: 24,
-    color: '#E74C3C',
+    fontSize: 20,
+    color: '#FFFFFF',
     fontWeight: 'bold',
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   tirageNumeros: {
     flexDirection: 'row',
     marginTop: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
-  numeroBall: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#3498DB',
+  numeroBallTirage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#0055A4', // Bleu pour les numéros tirés
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 5,
+    margin: 3,
   },
-  chanceBall: {
-    backgroundColor: '#E74C3C',
+  chanceBallTirage: {
+    backgroundColor: '#E50000',
   },
   numeroText: {
-    color: '#fff',
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  resultSection: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 5,
+  },
+  resultText: {
+    fontSize: 14,
+    color: '#333333',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 10,
+    maxHeight: '80%',
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 5,
+  },
+  closeButtonText: {
+    color: '#000',
+    fontSize: 18,
   },
 });
