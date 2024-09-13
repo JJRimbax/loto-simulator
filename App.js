@@ -85,7 +85,10 @@ export default function App() {
       }
 
       // Ajouter la grille à la liste
-      setGrilles([...grilles, { numeros: numerosUtilisateur, chance: numeroChanceUtilisateur, secondTirage: false }]);
+      setGrilles((prevGrilles) => [
+        ...prevGrilles,
+        { numeros: numerosUtilisateur, chance: numeroChanceUtilisateur, secondTirage: false }
+      ]);
 
       // Réinitialiser les entrées
       setNumerosInput(['', '', '', '', '']);
@@ -209,8 +212,8 @@ export default function App() {
         )}€\n\n${messageResultat}`
       );
 
-      // **Suppression de la Réinitialisation des Grilles**
-      // setGrilles([]); // Cette ligne est supprimée pour conserver les grilles après un tour
+      // **Suppression de la Réinitialisation Automatique des Grilles**
+      // Les grilles restent pour permettre de les rejouer
 
       // Afficher la modal avec les résultats
       setModalVisible(true);
@@ -423,6 +426,16 @@ export default function App() {
             >
               <Text style={styles.buttonText}>Jouer</Text>
             </TouchableOpacity>
+
+            {/* Animation de Tirage en dessous du bouton "Jouer" */}
+            {isAnimating && (
+              <View style={styles.animationContainer}>
+                <Text style={styles.animationText}>Tirage en cours...</Text>
+                <Animated.View style={{ opacity: tirageAnim }}>
+                  <Text style={styles.tirageText}>🎲 🎲 🎲 🎲 🎲</Text>
+                </Animated.View>
+              </View>
+            )}
           </ScrollView>
 
           {/* Modal pour afficher les grilles jouées */}
@@ -490,16 +503,6 @@ export default function App() {
                 </TouchableOpacity>
 
                 <ScrollView>
-                  {/* Afficher le tirage avec animation */}
-                  {isAnimating && (
-                    <View style={styles.tirageSection}>
-                      <Text style={styles.sectionTitle}>Tirage en cours...</Text>
-                      <Animated.View style={{ opacity: tirageAnim }}>
-                        <Text style={styles.tirageText}>🎲 🎲 🎲 🎲 🎲</Text>
-                      </Animated.View>
-                    </View>
-                  )}
-
                   {/* Afficher les numéros tirés */}
                   {!isAnimating && numerosTirage.length > 0 && (
                     <View style={styles.tirageSection}>
@@ -553,7 +556,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop:100,
+    marginTop: 100,
     flex: 1,
   },
   content: {
@@ -687,6 +690,26 @@ const styles = StyleSheet.create({
     width: '60%',
     alignItems: 'center',
   },
+  animationContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  animationText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 10,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  tirageText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
   grille: {
     borderWidth: 1,
     borderColor: '#FFFFFF',
@@ -737,20 +760,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
   },
-  tirageText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
-  tirageNumeros: {
-    flexDirection: 'row',
-    marginTop: 10,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
   numeroBallTirage: {
     width: 40,
     height: 40,
@@ -797,5 +806,11 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#000',
     fontSize: 18,
+  },
+  tirageNumeros: {
+    flexDirection: 'row', // Assure une disposition horizontale
+    flexWrap: 'nowrap', // Empêche le retour à la ligne
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
