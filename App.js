@@ -32,7 +32,7 @@ export default function App() {
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState('');
-  const [resultatsGrilles, setResultatsGrilles] = useState([]); // Nouvelle variable d'état pour les résultats détaillés
+  const [resultatsGrilles, setResultatsGrilles] = useState([]); // Résultats détaillés des grilles
   const [totalGains, setTotalGains] = useState(0);
   const [nombreTours, setNombreTours] = useState(0);
   const [totalDepense, setTotalDepense] = useState(0);
@@ -41,10 +41,9 @@ export default function App() {
   const [numerosTirage, setNumerosTirage] = useState([]);
   const [numeroChanceTirage, setNumeroChanceTirage] = useState(null);
   const [numerosSecondTirage, setNumerosSecondTirage] = useState([]);
-  const [displaySecondTirage, setDisplaySecondTirage] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [grillesModalVisible, setGrillesModalVisible] = useState(false); // Nouvelle modal pour les grilles jouées
+  const [grillesModalVisible, setGrillesModalVisible] = useState(false); // Modal pour les grilles jouées
 
   // Références pour les animations
   const tirageAnim = useRef(new Animated.Value(0)).current;
@@ -117,30 +116,27 @@ export default function App() {
       return;
     }
 
-    // Déduire le coût du solde en utilisant la forme fonctionnelle
+    // Déduire le coût du solde
     setSolde((prevSolde) => prevSolde - coutTotalGrilles);
     setTotalDepense((prevTotalDepense) => prevTotalDepense + coutTotalGrilles);
     setNombreTours((prevNombreTours) => prevNombreTours + 1);
 
-    // Simuler le tirage
+    // Simuler le tirage principal
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
     const numeroChanceTire = getRandomNumber(1, 10);
+
+    // Simuler le second tirage s'il y a au moins une grille avec le second tirage activé
+    let numerosSecondTirage = [];
+    const anySecondTirage = grilles.some(grille => grille.secondTirage);
+    if (anySecondTirage) {
+      numerosSecondTirage = getRandomUniqueNumbers(5, 1, 49);
+    }
 
     // Lancer l'animation du tirage
     lancerAnimationTirage(() => {
       setNumerosTirage(numerosTires);
       setNumeroChanceTirage(numeroChanceTire);
-
-      // Gérer le second tirage si au moins une grille l'a choisi
-      const anySecondTirage = grilles.some(grille => grille.secondTirage);
-      if (anySecondTirage) {
-        const numerosSecond = getRandomUniqueNumbers(5, 1, 49);
-        setNumerosSecondTirage(numerosSecond);
-        setDisplaySecondTirage(true);
-      } else {
-        setNumerosSecondTirage([]);
-        setDisplaySecondTirage(false);
-      }
+      setNumerosSecondTirage(numerosSecondTirage);
 
       // Calculer les gains et préparer les résultats détaillés
       let gainTotalTour = 0;
@@ -149,21 +145,26 @@ export default function App() {
       const tempResultatsGrilles = [];
 
       grilles.forEach((grille, index) => {
+        // Calcul des gains principaux
         const gain = calculerGains(
           grille.numeros,
           grille.chance,
-          numerosTirage,
+          numerosTires,
           numeroChanceTire
         );
         const numerosTrouves = grille.numeros.filter(num =>
-          numerosTirage.includes(num)
+          numerosTires.includes(num)
         );
 
         // Vérifier si le numéro chance est trouvé
         const chanceTrouve = grille.chance === numeroChanceTire;
 
+        // Initialiser les variables pour le second tirage
         let gainSecond = 0;
+        let numerosSecondTrouves = [];
+
         if (grille.secondTirage && numerosSecondTirage.length === 5) {
+          // Comparer avec le second tirage global
           gainSecond = calculerGains(
             grille.numeros,
             0,
@@ -171,24 +172,24 @@ export default function App() {
             0,
             true
           );
+          numerosSecondTrouves = grille.numeros.filter(num =>
+            numerosSecondTirage.includes(num)
+          );
         }
 
         let gainTotalGrille = 0;
-        let gainAffiche = null;
 
+        // Calcul des gains
         if (gain === 'Jackpot') {
           gainTotalGrille += jackpot;
           jackpotGagne = true;
           setJackpot(2000000); // Réinitialiser le jackpot
-          gainAffiche = jackpot;
         } else if (gain > 0) {
           gainTotalGrille += gain;
-          gainAffiche = gain;
         }
 
         if (gainSecond > 0) {
           gainTotalGrille += gainSecond;
-          gainAffiche = gainAffiche ? gainAffiche + gainSecond : gainSecond;
         }
 
         if (gainTotalGrille > 0) {
@@ -202,15 +203,17 @@ export default function App() {
           numeros: grille.numeros,
           numerosTrouves: numerosTrouves,
           chanceTrouve: chanceTrouve,
-          gain: gainTotalGrille > 0 ? gainTotalGrille : null,
+          gain: gain > 0 ? gain : null,
+          numerosSecondTrouves: numerosSecondTrouves,
+          gainSecond: gainSecond > 0 ? gainSecond : null,
         });
       });
 
       if (!jackpotGagne) {
-        setJackpot((prevJackpot) => prevJackpot + 1000000); // Incrémenter le jackpot de 1 million
+        setJackpot((prevJackpot) => prevJackpot + 1000000); // Incrémenter le jackpot
       }
 
-      // Mettre à jour les états en utilisant la forme fonctionnelle
+      // Mettre à jour les états
       setMeilleurGain((prevMeilleurGain) => (gainTotalTour > prevMeilleurGain && typeof gainTotalTour === 'number' ? gainTotalTour : prevMeilleurGain));
       setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
       setSolde((prevSolde) => prevSolde + gainTotalTour);
@@ -534,7 +537,7 @@ export default function App() {
                   )}
 
                   {/* Afficher le second tirage */}
-                  {displaySecondTirage && numerosSecondTirage.length === 5 && (
+                  {!isAnimating && numerosSecondTirage.length === 5 && (
                     <View style={styles.tirageSection}>
                       <Text style={styles.sectionTitle}>Second Tirage:</Text>
                       <View style={styles.tirageNumeros}>
@@ -589,10 +592,50 @@ export default function App() {
                               </Text>
                             </View>
                           </View>
+
+                          {/* Afficher le second tirage pour cette grille */}
+                          {grilles[index].secondTirage && numerosSecondTirage.length === 5 && (
+                            <View style={styles.secondTirageSection}>
+                              <Text style={styles.secondTirageTitle}>Résultat du Second Tirage:</Text>
+                              <View style={styles.resultNumerosContainer}>
+                                {numerosSecondTirage.map((num, idx) => {
+                                  const estTrouveSecond = resultat.numerosSecondTrouves.includes(num);
+                                  return (
+                                    <View
+                                      key={idx}
+                                      style={[
+                                        styles.numeroBallResult,
+                                        estTrouveSecond ? styles.numeroTrouve : styles.numeroNonTrouve
+                                      ]}
+                                    >
+                                      <Text
+                                        style={[
+                                          styles.numeroTextResult,
+                                          estTrouveSecond ? styles.textTrouve : styles.textNonTrouve
+                                        ]}
+                                      >
+                                        {num}
+                                      </Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                            </View>
+                          )}
+
+                          {/* Afficher les gains principaux */}
                           {resultat.gain && (
                             <View style={styles.gainContainer}>
                               <FontAwesome name="star" size={16} color="#0055A4" style={{ marginRight: 5 }} />
                               <Text style={styles.gainText}>{formatMontant(resultat.gain)}€</Text>
+                            </View>
+                          )}
+
+                          {/* Afficher les gains du second tirage */}
+                          {resultat.gainSecond && (
+                            <View style={styles.gainSecondContainer}>
+                              <FontAwesome name="star" size={16} color="#E50000" style={{ marginRight: 5 }} />
+                              <Text style={styles.gainSecondText}>{formatMontant(resultat.gainSecond)}€</Text>
                             </View>
                           )}
                         </View>
@@ -957,5 +1000,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0055A4',
     fontWeight: 'bold',
+  },
+  gainSecondContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#E50000',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  gainSecondText: {
+    fontSize: 14,
+    color: '#E50000',
+    fontWeight: 'bold',
+  },
+  secondTirageSection: {
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  secondTirageTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 5,
   },
 });
