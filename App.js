@@ -44,6 +44,9 @@ export default function App() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [grillesModalVisible, setGrillesModalVisible] = useState(false); // Modal pour les grilles jouées
+  const [modalGenererVisible, setModalGenererVisible] = useState(false); // Modal pour générer les grilles
+  const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
+  const [secondTirageGenerer, setSecondTirageGenerer] = useState(false); // Switch pour le second tirage dans la modal de génération
 
   // Références pour les animations
   const tirageAnim = useRef(new Animated.Value(0)).current;
@@ -93,6 +96,34 @@ export default function App() {
       // Réinitialiser les entrées
       setNumerosInput(['', '', '', '', '']);
       setNumeroChanceInput('');
+    } catch (error) {
+      Alert.alert('Erreur', error.message);
+    }
+  };
+
+  // Fonction pour générer des grilles aléatoirement
+  const genererGrillesAleatoires = () => {
+    try {
+      const nombre = parseInt(nombreGrillesAGenerer);
+      if (isNaN(nombre) || nombre < 1 || nombre > 1000) {
+        throw new Error('Veuillez entrer un nombre entre 1 et 1000.');
+      }
+
+      const nouvellesGrilles = [];
+      for (let i = 0; i < nombre; i++) {
+        const numeros = getRandomUniqueNumbers(5, 1, 49);
+        const chance = getRandomNumber(1, 10);
+        nouvellesGrilles.push({
+          numeros: numeros,
+          chance: chance,
+          secondTirage: secondTirageGenerer,
+        });
+      }
+
+      setGrilles((prevGrilles) => [...prevGrilles, ...nouvellesGrilles]);
+      setModalGenererVisible(false);
+      setNombreGrillesAGenerer('');
+      setSecondTirageGenerer(false);
     } catch (error) {
       Alert.alert('Erreur', error.message);
     }
@@ -250,7 +281,7 @@ export default function App() {
     );
   };
 
-  // Fonction pour activer/désactiver le second tirage
+  // Fonction pour activer/désactiver le second tirage pour une grille individuelle
   const toggleSecondTirage = (index) => {
     setGrilles((prevGrilles) => {
       const newGrilles = [...prevGrilles];
@@ -373,6 +404,10 @@ export default function App() {
                 <TouchableOpacity style={styles.flashButton} onPress={flashNumeroChance}>
                   <Text style={styles.flashButtonText}>Flash</Text>
                 </TouchableOpacity>
+                {/* Bouton pour générer des grilles en masse */}
+                <TouchableOpacity style={styles.genererButton} onPress={() => setModalGenererVisible(true)}>
+                  <Text style={styles.genererButtonText}>Générer Grilles</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -440,6 +475,51 @@ export default function App() {
               </View>
             )}
           </ScrollView>
+
+          {/* Modal pour générer des grilles */}
+          <Modal
+            visible={modalGenererVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setModalGenererVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {/* Bouton pour fermer la modal */}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalGenererVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>✖</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.sectionTitle}>Générer des Grilles Aléatoires</Text>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={nombreGrillesAGenerer}
+                  onChangeText={(text) => setNombreGrillesAGenerer(text.replace(/[^0-9]/g, ''))}
+                  placeholder="Nombre de grilles (max 1000)"
+                  placeholderTextColor="#AAAAAA"
+                />
+
+                {/* Switch pour le second tirage */}
+                <View style={styles.switchContainerModal}>
+                  <Text style={styles.switchLabel}>Second Tirage:</Text>
+                  <Switch
+                    value={secondTirageGenerer}
+                    onValueChange={(value) => setSecondTirageGenerer(value)}
+                    trackColor={{ false: '#767577', true: '#81b0ff' }}
+                    thumbColor={secondTirageGenerer ? '#f5dd4b' : '#f4f3f4'}
+                  />
+                </View>
+
+                <TouchableOpacity style={styles.genererButtonModal} onPress={genererGrillesAleatoires}>
+                  <Text style={styles.buttonText}>Générer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           {/* Modal pour afficher les grilles jouées */}
           <Modal
@@ -658,7 +738,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop: 90,
+    marginTop: 80,
     flex: 1,
   },
   content: {
@@ -727,6 +807,18 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   flashButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14, // Taille uniforme
+  },
+  genererButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  genererButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14, // Taille uniforme
@@ -853,10 +945,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  switchContainerModal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   switchLabel: {
     fontSize: 14,
     color: '#333333',
     marginRight: 10,
+  },
+  switchLabelGlobal: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginRight: 10,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   tirageSection: {
     marginBottom: 10,
@@ -913,6 +1018,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     maxHeight: '80%',
+    alignItems: 'center',
   },
   closeButton: {
     alignSelf: 'flex-end',
@@ -1025,5 +1131,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 5,
+  },
+  genererButtonModal: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginTop: 10,
+    width: '60%',
+    alignItems: 'center',
   },
 });
