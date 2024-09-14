@@ -45,6 +45,7 @@ export default function App() {
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
   const [secondTirageGenerer, setSecondTirageGenerer] = useState(false); // Switch pour le second tirage dans la modal de génération
   const [modalInfoVisible, setModalInfoVisible] = useState(false); // Modal pour les informations du jeu
+  const [gainDernierTour, setGainDernierTour] = useState(0); // Nouveau : Gain du dernier tirage
 
   // Références pour les animations
   const circleAnimations = useRef([
@@ -266,6 +267,9 @@ export default function App() {
       setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
       setSolde((prevSolde) => prevSolde + gainTotalTour);
       setResultatsGrilles(tempResultatsGrilles);
+
+      // Mise à jour du gain du dernier tirage
+      setGainDernierTour(gainTotalTour);
 
       // Afficher la modal avec les résultats
       setModalVisible(true);
@@ -677,8 +681,9 @@ export default function App() {
                   {/* Informations de gains dans la modal */}
                   {!isAnimating && (
                     <View style={styles.gainsInfoSection}>
-                      <Text style={styles.sectionTitle}>Résumé des Gains:</Text>
+                      <Text style={styles.sectionTitleModal}>Résumé des Gains:</Text>
                       <View style={styles.gainsInfo}>
+                        <Text style={styles.gainsTextHighlight}>💵 Gain de ce tirage: {formatMontant(gainDernierTour)}€</Text>
                         <Text style={styles.gainsText}>💰 Cumul des gains: {formatMontant(totalGains)}€</Text>
                         <Text style={styles.gainsText}>🏆 Meilleur gain: {formatMontant(meilleurGain)}€</Text>
                         <Text style={styles.gainsText}>💸 Total dépensé: {formatMontant(totalDepense)}€</Text>
@@ -690,7 +695,7 @@ export default function App() {
                   {/* Afficher les numéros tirés */}
                   {!isAnimating && numerosTirage.length > 0 && (
                     <View style={styles.tirageSection}>
-                      <Text style={styles.sectionTitle}>Numéros Tirés:</Text>
+                      <Text style={styles.sectionTitleModal}>Numéros Tirés:</Text>
                       <View style={styles.tirageNumeros}>
                         {numerosTirage.map((num, index) => (
                           <View key={index} style={styles.numeroBallTirage}>
@@ -707,7 +712,7 @@ export default function App() {
                   {/* Afficher le second tirage */}
                   {!isAnimating && numerosSecondTirage.length === 5 && (
                     <View style={styles.tirageSection}>
-                      <Text style={styles.sectionTitle}>Second Tirage:</Text>
+                      <Text style={styles.sectionTitleModal}>Second Tirage:</Text>
                       <View style={styles.tirageNumeros}>
                         {numerosSecondTirage.map((num, index) => (
                           <View key={index} style={styles.numeroBallTirage}>
@@ -721,7 +726,7 @@ export default function App() {
                   {/* Afficher les résultats détaillés des grilles */}
                   {resultatsGrilles.length > 0 && (
                     <View style={styles.resultSection}>
-                      <Text style={styles.sectionTitle}>Résultats des Grilles:</Text>
+                      <Text style={styles.sectionTitleModal}>Résultats des Grilles:</Text>
                       {resultatsGrilles.map((resultat, index) => (
                         <View key={index} style={styles.resultGrille}>
                           <Text style={styles.resultGrilleTitle}>Grille {index + 1}:</Text>
@@ -819,7 +824,6 @@ export default function App() {
     </View>
   );
 }
-
 // Styles pour l'application
 const styles = StyleSheet.create({
   background: {
@@ -827,9 +831,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C77AF', // Fond bleu
   },
   container: {
-    marginTop: 70,
+    marginTop: 50,
     flex: 1,
   },
+  
+  gainsTextHighlight: {
+    fontSize: 16,
+    color: '#28a745', // Vert pour les gains
+    marginVertical: 2,
+    fontWeight: 'bold',
+  },
+
   content: {
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -875,12 +887,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16, // Taille uniforme
     marginBottom: 8,
-    color: '#FFFFFF',
+    color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
+  },
+  sectionTitleModal: {
+    fontSize: 16, // Taille uniforme
+    marginBottom: 8,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   numerosContainer: {
     flexDirection: 'row',
@@ -1142,7 +1158,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333333',
+    color: '#000000', // Changer la couleur en noir
     fontWeight: 'bold',
     textAlign: 'center',
   },
