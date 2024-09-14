@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -56,6 +56,27 @@ export default function App() {
     new Animated.Value(0),
     new Animated.Value(0),
   ]).current;
+
+  // Animation pour le jackpot
+  const [jackpotAnimation] = useState(new Animated.Value(1));
+
+  useEffect(() => {
+    // Animation du jackpot
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(jackpotAnimation, {
+          toValue: 1.05,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(jackpotAnimation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
 
   // Fonction pour lancer l'animation du tirage
   const lancerAnimationTirage = (callback) => {
@@ -369,15 +390,41 @@ export default function App() {
     }
   };
 
-  // Fonction pour générer des numéros aléatoires (Flash)
+  // Fonction pour générer des numéros aléatoires (Flash) avec animation
   const flashNumeros = () => {
-    const numeros = getRandomUniqueNumbers(5, 1, 49);
-    setNumerosInput(numeros.map(num => num.toString()));
+    let iterations = 10;
+    let count = 0;
+
+    const interval = setInterval(() => {
+      const randomNumbers = getRandomUniqueNumbers(5, 1, 49);
+      setNumerosInput(randomNumbers.map(num => num.toString()));
+
+      count++;
+      if (count >= iterations) {
+        clearInterval(interval);
+        // Définir les numéros finaux
+        const numeros = getRandomUniqueNumbers(5, 1, 49);
+        setNumerosInput(numeros.map(num => num.toString()));
+      }
+    }, 100);
   };
 
   const flashNumeroChance = () => {
-    const numero = getRandomNumber(1, 10);
-    setNumeroChanceInput(numero.toString());
+    let iterations = 10;
+    let count = 0;
+
+    const interval = setInterval(() => {
+      const randomNumber = getRandomNumber(1, 10);
+      setNumeroChanceInput(randomNumber.toString());
+
+      count++;
+      if (count >= iterations) {
+        clearInterval(interval);
+        // Définir le numéro final
+        const numero = getRandomNumber(1, 10);
+        setNumeroChanceInput(numero.toString());
+      }
+    }, 100);
   };
 
   return (
@@ -390,6 +437,7 @@ export default function App() {
           <ScrollView contentContainerStyle={styles.content}>
             {/* Header avec le titre et le bouton d'information */}
             <View style={styles.header}>
+              <FontAwesome name="ticket" size={32} color="#FFFFFF" style={styles.titleIcon} />
               <Text style={styles.title}>Simulateur de Loto</Text>
               <TouchableOpacity
                 style={styles.infoButton}
@@ -399,52 +447,61 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Afficher le jackpot */}
-            <Text style={styles.jackpot}>Jackpot: {formatMontant(jackpot)}€</Text>
+            {/* Afficher le jackpot avec animation */}
+            <Animated.View style={{ transform: [{ scale: jackpotAnimation }] }}>
+              <Text style={styles.jackpot}>Jackpot: {formatMontant(jackpot)}€</Text>
+            </Animated.View>
 
-            {/* Entrée pour les numéros */}
+            {/* Section pour créer une grille */}
             <View style={styles.inputSection}>
-              <Text style={styles.sectionTitle}>Numéros (1-49):</Text>
-              <View style={styles.numerosContainer}>
-                {numerosInput.map((num, index) => (
+              <Text style={styles.sectionTitle}>Créer une Grille:</Text>
+
+              {/* Entrée pour les numéros */}
+              <View>
+                <Text style={styles.sectionTitle}>Numéros (1-49):</Text>
+                <View style={styles.numerosContainer}>
+                  {numerosInput.map((num, index) => (
+                    <TextInput
+                      key={index}
+                      style={styles.input}
+                      keyboardType="numeric"
+                      maxLength={2}
+                      value={num}
+                      onChangeText={(text) => {
+                        const newNumeros = [...numerosInput];
+                        newNumeros[index] = text.replace(/[^0-9]/g, '');
+                        setNumerosInput(newNumeros);
+                      }}
+                    />
+                  ))}
+                  <TouchableOpacity style={styles.flashButtonBlue} onPress={flashNumeros}>
+                    <Text style={styles.flashButtonText}>Flash</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Entrée pour le numéro chance */}
+              <View>
+                <Text style={styles.sectionTitle}>Numéro Chance (1-10):</Text>
+                <View style={styles.numerosContainer}>
                   <TextInput
-                    key={index}
                     style={styles.input}
                     keyboardType="numeric"
                     maxLength={2}
-                    value={num}
-                    onChangeText={(text) => {
-                      const newNumeros = [...numerosInput];
-                      newNumeros[index] = text.replace(/[^0-9]/g, '');
-                      setNumerosInput(newNumeros);
-                    }}
+                    value={numeroChanceInput}
+                    onChangeText={(text) => setNumeroChanceInput(text.replace(/[^0-9]/g, ''))}
                   />
-                ))}
-                <TouchableOpacity style={styles.flashButtonBlue} onPress={flashNumeros}>
-                  <Text style={styles.flashButtonText}>Flash</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity style={styles.flashButton} onPress={flashNumeroChance}>
+                    <Text style={styles.flashButtonText}>Flash</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
 
-            {/* Entrée pour le numéro chance */}
-            <View style={styles.inputSection}>
-              <Text style={styles.sectionTitle}>Numéro Chance (1-10):</Text>
-              <View style={styles.numerosContainer}>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  maxLength={2}
-                  value={numeroChanceInput}
-                  onChangeText={(text) => setNumeroChanceInput(text.replace(/[^0-9]/g, ''))}
-                />
-                <TouchableOpacity style={styles.flashButton} onPress={flashNumeroChance}>
-                  <Text style={styles.flashButtonText}>Flash</Text>
-                </TouchableOpacity>
-              </View>
               {/* Bouton pour ajouter la grille */}
               <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
                 <Text style={styles.buttonText}>Ajouter Grille</Text>
               </TouchableOpacity>
+
               {/* Bouton "Générer des Grilles" */}
               <TouchableOpacity
                 style={styles.genererButton}
@@ -824,6 +881,7 @@ export default function App() {
     </View>
   );
 }
+
 // Styles pour l'application
 const styles = StyleSheet.create({
   background: {
@@ -834,14 +892,12 @@ const styles = StyleSheet.create({
     marginTop: 50,
     flex: 1,
   },
-  
   gainsTextHighlight: {
     fontSize: 16,
     color: '#28a745', // Vert pour les gains
     marginVertical: 2,
     fontWeight: 'bold',
   },
-
   content: {
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -853,6 +909,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+  },
+  titleIcon: {
+    position: 'absolute',
+    left: 10,
   },
   infoButton: {
     position: 'absolute',
