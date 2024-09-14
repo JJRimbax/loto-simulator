@@ -18,7 +18,7 @@ import {
   Switch,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône étoile
+import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône du point d'interrogation
 
 // Fonction utilitaire pour formater les montants avec des espaces
 const formatMontant = (montant) => {
@@ -47,6 +47,7 @@ export default function App() {
   const [modalGenererVisible, setModalGenererVisible] = useState(false); // Modal pour générer les grilles
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
   const [secondTirageGenerer, setSecondTirageGenerer] = useState(false); // Switch pour le second tirage dans la modal de génération
+  const [modalInfoVisible, setModalInfoVisible] = useState(false); // Modal pour les informations du jeu
 
   // Références pour les animations
   const tirageAnim = useRef(new Animated.Value(0)).current;
@@ -361,7 +362,16 @@ export default function App() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScrollView contentContainerStyle={styles.content}>
-            <Text style={styles.title}>Simulateur de Loto</Text>
+            {/* Header avec le titre et le bouton d'information */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Simulateur de Loto</Text>
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={() => setModalInfoVisible(true)}
+              >
+                <FontAwesome name="question-circle" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
 
             {/* Afficher le jackpot */}
             <Text style={styles.jackpot}>Jackpot: {formatMontant(jackpot)}€</Text>
@@ -384,7 +394,7 @@ export default function App() {
                     }}
                   />
                 ))}
-                <TouchableOpacity style={styles.flashButton} onPress={flashNumeros}>
+                <TouchableOpacity style={styles.flashButtonBlue} onPress={flashNumeros}>
                   <Text style={styles.flashButtonText}>Flash</Text>
                 </TouchableOpacity>
               </View>
@@ -404,17 +414,19 @@ export default function App() {
                 <TouchableOpacity style={styles.flashButton} onPress={flashNumeroChance}>
                   <Text style={styles.flashButtonText}>Flash</Text>
                 </TouchableOpacity>
-                {/* Bouton pour générer des grilles en masse */}
-                <TouchableOpacity style={styles.genererButton} onPress={() => setModalGenererVisible(true)}>
-                  <Text style={styles.genererButtonText}>Générer Grilles</Text>
-                </TouchableOpacity>
               </View>
+              {/* Bouton pour ajouter la grille */}
+              <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
+                <Text style={styles.buttonText}>Ajouter Grille</Text>
+              </TouchableOpacity>
+              {/* Bouton "Générer des Grilles" déplacé ici */}
+              <TouchableOpacity
+                style={styles.genererButton}
+                onPress={() => setModalGenererVisible(true)}
+              >
+                <Text style={styles.genererButtonText}>Générer des Grilles</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Bouton pour ajouter la grille */}
-            <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
-              <Text style={styles.buttonText}>Ajouter Grille</Text>
-            </TouchableOpacity>
 
             {/* Bouton pour afficher les grilles jouées */}
             {grilles.length > 0 && (
@@ -451,7 +463,7 @@ export default function App() {
               </View>
             </View>
 
-            {/* Afficher le solde dans la vue principale sous la section de dépôt */}
+            {/* Afficher le solde actuel */}
             <View style={styles.soldeSectionMain}>
               <Text style={styles.soldeText}>💳 Solde actuel: {formatMontant(solde)}€</Text>
             </View>
@@ -465,7 +477,7 @@ export default function App() {
               <Text style={styles.buttonText}>Jouer</Text>
             </TouchableOpacity>
 
-            {/* Animation de Tirage en dessous du bouton "Jouer" */}
+            {/* Animation pendant le tirage */}
             {isAnimating && (
               <View style={styles.animationContainer}>
                 <Text style={styles.animationText}>Tirage en cours...</Text>
@@ -475,6 +487,50 @@ export default function App() {
               </View>
             )}
           </ScrollView>
+
+          {/* Modal pour les informations du jeu */}
+          <Modal
+            visible={modalInfoVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setModalInfoVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {/* Bouton pour fermer la modal */}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalInfoVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>✖</Text>
+                </TouchableOpacity>
+
+                <ScrollView>
+                  <Text style={styles.modalTitle}>Informations sur le Jeu</Text>
+                  <Text style={styles.modalText}>
+                    Prix par grille :
+                    {'\n'}- Grille simple : 2€
+                    {'\n'}- Option Second Tirage : +1€ par grille
+                    {'\n\n'}Gains possibles :
+                    {'\n'}- 5 numéros + Numéro Chance : Jackpot
+                    {'\n'}- 5 numéros : 100 000€
+                    {'\n'}- 4 numéros + Numéro Chance : 1 000€
+                    {'\n'}- 4 numéros : 400€
+                    {'\n'}- 3 numéros + Numéro Chance : 50€
+                    {'\n'}- 3 numéros : 20€
+                    {'\n'}- 2 numéros + Numéro Chance : 10€
+                    {'\n'}- 2 numéros : 4€
+                    {'\n'}- 1 numéro + Numéro Chance ou Numéro Chance seul : 2€
+                    {'\n\n'}Gains Second Tirage :
+                    {'\n'}- 5 numéros : 100 000€
+                    {'\n'}- 4 numéros : 1 000€
+                    {'\n'}- 3 numéros : 10€
+                    {'\n'}- 2 numéros : 2€
+                  </Text>
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
 
           {/* Modal pour générer des grilles */}
           <Modal
@@ -493,19 +549,19 @@ export default function App() {
                   <Text style={styles.closeButtonText}>✖</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.sectionTitle}>Générer des Grilles Aléatoires</Text>
+                <Text style={styles.modalTitle}>Générer des Grilles Aléatoires</Text>
                 <TextInput
-                  style={styles.input}
+                  style={styles.modalInput}
                   keyboardType="numeric"
                   value={nombreGrillesAGenerer}
                   onChangeText={(text) => setNombreGrillesAGenerer(text.replace(/[^0-9]/g, ''))}
-                  placeholder="Nombre de grilles (max 1000)"
+                  placeholder="Entrez un nombre de grilles à générer"
                   placeholderTextColor="#AAAAAA"
                 />
 
                 {/* Switch pour le second tirage */}
                 <View style={styles.switchContainerModal}>
-                  <Text style={styles.switchLabel}>Second Tirage:</Text>
+                  <Text style={styles.modalSwitchLabel}>Second Tirage:</Text>
                   <Switch
                     value={secondTirageGenerer}
                     onValueChange={(value) => setSecondTirageGenerer(value)}
@@ -542,7 +598,7 @@ export default function App() {
                   <Text style={styles.sectionTitle}>Grilles Jouées:</Text>
                   {grilles.map((grille, index) => (
                     <View key={index} style={styles.grille}>
-                      <View style={styles.grilleNumeros}>
+                      <View style={styles.grilleNumerosRow}>
                         {grille.numeros.map((num, idx) => (
                           <View key={idx} style={styles.numeroBallGrille}>
                             <Text style={styles.numeroTextGrille}>{num}</Text>
@@ -738,7 +794,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop: 80,
+    marginTop: 70,
     flex: 1,
   },
   content: {
@@ -746,6 +802,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     flexGrow: 1, // Permet au contenu de prendre toute la hauteur disponible
+  },
+  header: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  infoButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   title: {
     fontSize: 24, // Taille uniforme
@@ -800,7 +867,14 @@ const styles = StyleSheet.create({
     fontSize: 16, // Taille uniforme
   },
   flashButton: {
-    backgroundColor: '#E50000',
+    backgroundColor: '#E50000', // Rouge
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  flashButtonBlue: {
+    backgroundColor: '#0055A4', // Bleu
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -813,15 +887,18 @@ const styles = StyleSheet.create({
   },
   genererButton: {
     backgroundColor: '#0055A4',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 5,
-    marginLeft: 5,
+    marginTop: 10, // Ajouter un marginTop pour espacer du contenu au-dessus
+    width: '60%',
+    alignItems: 'center',
   },
   genererButtonText: {
     color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
     fontWeight: 'bold',
-    fontSize: 14, // Taille uniforme
   },
   addButton: {
     backgroundColor: '#E50000',
@@ -911,14 +988,16 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     borderRadius: 5,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    width: '90%',
+    width: '100%', // Augmenter la largeur à 100%
     alignItems: 'center',
   },
-  grilleNumeros: {
+  grilleNumerosRow: {
     flexDirection: 'row',
     marginTop: 5,
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap', // Assure que les numéros restent sur une seule ligne
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10, // Ajouter du padding horizontal
   },
   numeroBallGrille: {
     width: 30,
@@ -955,13 +1034,10 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginRight: 10,
   },
-  switchLabelGlobal: {
-    fontSize: 16,
-    color: '#FFFFFF',
+  modalSwitchLabel: {
+    fontSize: 14,
+    color: '#333333',
     marginRight: 10,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
   },
   tirageSection: {
     marginBottom: 10,
@@ -1011,6 +1087,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
+    alignItems: 'center', // Centrer le contenu horizontalement
     padding: 10,
   },
   modalContent: {
@@ -1019,6 +1096,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     maxHeight: '80%',
     alignItems: 'center',
+    width: '90%', // Augmenter la largeur du contenu de la modal
+  },
+  modalTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333333',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    padding: 8,
+    width: '80%', // Augmenter la largeur pour une meilleure visibilité
+    marginVertical: 10,
+    textAlign: 'center',
+    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#333333',
+    textAlign: 'left',
+    marginVertical: 5,
   },
   closeButton: {
     alignSelf: 'flex-end',
