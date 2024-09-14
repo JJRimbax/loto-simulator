@@ -1,5 +1,3 @@
-// App.js
-
 import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
@@ -17,8 +15,7 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône du point d'interrogation
+import { FontAwesome } from '@expo/vector-icons'; // Pour les icônes
 
 // Fonction utilitaire pour formater les montants avec des espaces
 const formatMontant = (montant) => {
@@ -50,17 +47,33 @@ export default function App() {
   const [modalInfoVisible, setModalInfoVisible] = useState(false); // Modal pour les informations du jeu
 
   // Références pour les animations
-  const tirageAnim = useRef(new Animated.Value(0)).current;
+  const circleAnimations = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
 
   // Fonction pour lancer l'animation du tirage
   const lancerAnimationTirage = (callback) => {
     setIsAnimating(true);
-    tirageAnim.setValue(0);
-    Animated.timing(tirageAnim, {
-      toValue: 1,
-      duration: 3000, // Durée totale de l'animation (3 secondes)
-      useNativeDriver: false,
-    }).start(() => {
+
+    // Réinitialiser les animations des cercles
+    circleAnimations.forEach((anim) => anim.setValue(0));
+
+    // Créer les animations pour chaque cercle
+    const animations = circleAnimations.map((anim) => {
+      return Animated.timing(anim, {
+        toValue: 1,
+        duration: 500, // Durée pour chaque cercle
+        useNativeDriver: false,
+      });
+    });
+
+    // Animer les cercles les uns après les autres
+    Animated.sequence(animations).start(() => {
       setIsAnimating(false);
       callback();
     });
@@ -231,8 +244,11 @@ export default function App() {
           }
         }
 
+        // Ajout des propriétés `chance` et `secondTirage` au résultat
         tempResultatsGrilles.push({
           numeros: grille.numeros,
+          chance: grille.chance, // Ajouté
+          secondTirage: grille.secondTirage, // Ajouté
           numerosTrouves: numerosTrouves,
           chanceTrouve: chanceTrouve,
           gain: gain > 0 ? gain : null,
@@ -277,7 +293,13 @@ export default function App() {
       'Voulez-vous vraiment réinitialiser toutes les grilles?',
       [
         { text: 'Annuler', style: 'cancel' },
-        { text: 'Réinitialiser', onPress: () => setGrilles([]) },
+        {
+          text: 'Réinitialiser',
+          onPress: () => {
+            setGrilles([]);
+            setResultatsGrilles([]); // Réinitialiser les résultats
+          },
+        },
       ]
     );
   };
@@ -355,7 +377,7 @@ export default function App() {
   };
 
   return (
-    <LinearGradient colors={['#0055A4', '#FFFFFF']} style={styles.background}>
+    <View style={styles.background}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           style={styles.container}
@@ -419,7 +441,7 @@ export default function App() {
               <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
                 <Text style={styles.buttonText}>Ajouter Grille</Text>
               </TouchableOpacity>
-              {/* Bouton "Générer des Grilles" déplacé ici */}
+              {/* Bouton "Générer des Grilles" */}
               <TouchableOpacity
                 style={styles.genererButton}
                 onPress={() => setModalGenererVisible(true)}
@@ -481,13 +503,23 @@ export default function App() {
             {isAnimating && (
               <View style={styles.animationContainer}>
                 <Text style={styles.animationText}>Tirage en cours...</Text>
-                <Animated.View style={{ opacity: tirageAnim }}>
-                  <Text style={styles.tirageText}>🎲 🎲 🎲 🎲 🎲</Text>
-                </Animated.View>
+                <View style={styles.animationCirclesContainer}>
+                  {circleAnimations.map((anim, index) => (
+                    <Animated.View
+                      key={index}
+                      style={[
+                        styles.animationCircle,
+                        index === 5 ? styles.chanceBallTirage : null, // Appliquer le style rouge au dernier cercle
+                        { opacity: anim },
+                      ]}
+                    />
+                  ))}
+                </View>
               </View>
             )}
           </ScrollView>
 
+          {/* Modals */}
           {/* Modal pour les informations du jeu */}
           <Modal
             visible={modalInfoVisible}
@@ -665,7 +697,7 @@ export default function App() {
                             <Text style={styles.numeroText}>{num}</Text>
                           </View>
                         ))}
-                        <View style={[styles.numeroBallTirage, styles.chanceBallTirage]}>
+                        <View style={[styles.numeroBallTirage, styles.chanceBallTirageModal]}>
                           <Text style={styles.numeroText}>{numeroChanceTirage}</Text>
                         </View>
                       </View>
@@ -724,13 +756,13 @@ export default function App() {
                                 styles.numeroTextResult,
                                 resultat.chanceTrouve ? styles.textChanceResult : styles.textChanceNonTrouve
                               ]}>
-                                {grilles[index].chance}
+                                {resultat.chance}
                               </Text>
                             </View>
                           </View>
 
                           {/* Afficher le second tirage pour cette grille */}
-                          {grilles[index].secondTirage && numerosSecondTirage.length === 5 && (
+                          {resultat.secondTirage && numerosSecondTirage.length === 5 && (
                             <View style={styles.secondTirageSection}>
                               <Text style={styles.secondTirageTitle}>Résultat du Second Tirage:</Text>
                               <View style={styles.resultNumerosContainer}>
@@ -784,7 +816,7 @@ export default function App() {
           </Modal>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -792,6 +824,7 @@ export default function App() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    backgroundColor: '#2C77AF', // Fond bleu
   },
   container: {
     marginTop: 70,
@@ -962,7 +995,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   animationContainer: {
-    marginTop: 20,
+    marginTop: 10, // Réduit pour rapprocher du bouton "Jouer"
     alignItems: 'center',
   },
   animationText: {
@@ -973,13 +1006,21 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 5,
   },
-  tirageText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
+  animationCirclesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  animationCircle: {
+    width: 30, // Réduit pour rendre les boules plus petites
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#0055A4', // Couleur bleue
+    margin: 5,
+  },
+  chanceBallTirage: {
+    backgroundColor: '#E50000', // Couleur rouge pour le numéro chance
   },
   grille: {
     borderWidth: 1,
@@ -1052,8 +1093,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 3,
   },
-  chanceBallTirage: {
-    backgroundColor: '#E50000', // Rouge pour le numéro chance
+  chanceBallTirageModal: {
+    backgroundColor: '#E50000', // Rouge pour le numéro chance dans le tirage
   },
   numeroText: {
     color: '#FFFFFF',
