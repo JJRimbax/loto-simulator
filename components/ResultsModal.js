@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   gainAmount: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: '#BAA031',
   },
   gainRow: {
     flexDirection: 'row',
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   gainText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#1E11CC',
   },
   gainSecondContainer: {
     flexDirection: 'row',
@@ -324,10 +324,10 @@ const styles = StyleSheet.create({
   gainSecondText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#1E11CC',
   },
   gainHigh: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#ffc107',
     color: '#FFFFFF',
   },
   gainMedium: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   gainLow: {
-    backgroundColor: '#6c757d',
+    backgroundColor: '#ffc107',
     color: '#FFFFFF',
   },
   tirageSection: {
