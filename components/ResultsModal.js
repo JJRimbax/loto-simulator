@@ -14,9 +14,20 @@ const ResultsModal = ({
   nombreTours,
   numerosTirage,
   numeroChanceTirage,
-  numerosSecondTirage,  // Assure-toi que ce prop est bien passé ici
+  numerosSecondTirage,
   resultatsGrilles,
 }) => {
+
+  const getGainColor = (gain) => {
+    if (gain >= 1000) {
+      return styles.gainHigh;
+    } else if (gain >= 100) {
+      return styles.gainMedium;
+    } else {
+      return styles.gainLow;
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -39,11 +50,26 @@ const ResultsModal = ({
               <View style={styles.gainsInfoSection}>
                 <Text style={styles.sectionTitleModal}>Résumé des Gains:</Text>
                 <View style={styles.gainsInfo}>
-                  <Text style={styles.gainsTextHighlight}>💵 Gain de ce tirage: {formatMontant(gainDernierTour)}€</Text>
-                  <Text style={styles.gainsText}>💰 Cumul des gains: {formatMontant(totalGains)}€</Text>
-                  <Text style={styles.gainsText}>🏆 Meilleur gain: {formatMontant(meilleurGain)}€</Text>
-                  <Text style={styles.gainsText}>💸 Total dépensé: {formatMontant(totalDepense)}€</Text>
-                  <Text style={styles.gainsText}>🎟️ Nombre de tours: {nombreTours}</Text>
+                  <View style={styles.gainHighlightContainer}>
+                    <Text style={styles.gainHighlightText}>💵 Gain de ce tirage:</Text>
+                    <Text style={styles.gainAmount}>{formatMontant(gainDernierTour)}€</Text>
+                  </View>
+                  <View style={styles.gainRow}>
+                    <Text style={styles.gainLabel}>💰 Cumul des gains:</Text>
+                    <Text style={styles.gainValue}>{formatMontant(totalGains)}€</Text>
+                  </View>
+                  <View style={styles.gainRow}>
+                    <Text style={styles.gainLabel}>🏆 Meilleur gain:</Text>
+                    <Text style={styles.gainValue}>{formatMontant(meilleurGain)}€</Text>
+                  </View>
+                  <View style={styles.gainRow}>
+                    <Text style={styles.gainLabel}>💸 Total dépensé:</Text>
+                    <Text style={styles.gainValue}>{formatMontant(totalDepense)}€</Text>
+                  </View>
+                  <View style={styles.gainRow}>
+                    <Text style={styles.gainLabel}>🎟️ Nombre de tours:</Text>
+                    <Text style={styles.gainValue}>{nombreTours}</Text>
+                  </View>
                 </View>
               </View>
             )}
@@ -153,14 +179,14 @@ const ResultsModal = ({
                     )}
 
                     {resultat.gain && (
-                      <View style={styles.gainContainer}>
+                      <View style={[styles.gainContainer, getGainColor(resultat.gain)]}>
                         <FontAwesome name="star" size={16} color="#0055A4" style={{ marginRight: 5 }} />
                         <Text style={styles.gainText}>{formatMontant(resultat.gain)}€</Text>
                       </View>
                     )}
 
                     {resultat.gainSecond && (
-                      <View style={styles.gainSecondContainer}>
+                      <View style={[styles.gainSecondContainer, getGainColor(resultat.gainSecond)]}>
                         <FontAwesome name="star" size={16} color="#E50000" style={{ marginRight: 5 }} />
                         <Text style={styles.gainSecondText}>{formatMontant(resultat.gainSecond)}€</Text>
                       </View>
@@ -191,9 +217,11 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
     alignItems: 'center',
     width: '90%',
+    borderWidth: 2,
+    borderColor: '#0055A4',
   },
   sectionTitleModal: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 8,
     color: 'black',
     fontWeight: 'bold',
@@ -202,10 +230,14 @@ const styles = StyleSheet.create({
   tirageSection: {
     marginBottom: 10,
     alignItems: 'center',
+    borderColor: '#0055A4',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    width: '100%',
   },
   tirageNumeros: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -232,9 +264,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 5,
     width: '100%',
+    borderColor: '#0055A4',
+    borderWidth: 1,
   },
   resultGrille: {
     marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#F0F8FF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#0055A4',
   },
   resultGrilleTitle: {
     fontSize: 16,
@@ -291,53 +330,40 @@ const styles = StyleSheet.create({
   textChanceNonTrouve: {
     color: '#FFFFFF',
   },
-  gainContainer: {
+  gainHighlightContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 5,
-    padding: 5,
-    borderWidth: 1,
-    borderColor: '#0055A4',
-    borderRadius: 5,
-    alignSelf: 'flex-start',
+    paddingVertical: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  gainText: {
-    fontSize: 14,
-    color: '#0055A4',
-    fontWeight: 'bold',
-  },
-  gainSecondContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-    padding: 5,
-    borderWidth: 1,
-    borderColor: '#E50000',
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-  },
-  gainSecondText: {
-    fontSize: 14,
-    color: '#E50000',
-    fontWeight: 'bold',
-  },
-  secondTirageSection: {
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  secondTirageTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: 5,
-  },
-  closeButtonText: {
-    color: '#000',
+  gainHighlightText: {
     fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginRight: 8,
+  },
+  gainAmount: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFD700', 
+  },
+  gainRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  gainLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  gainValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0055A4',
   },
 });
 
