@@ -227,6 +227,117 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10, // Aligne la croix à droite
+    padding: 5,
+    zIndex: 1, // Assure que le bouton soit au-dessus du contenu
+  },
+  closeButtonText: {
+    color: '#000',
+    fontSize: 18,
+  },
+  gainHighlightContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  gainHighlightText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginRight: 8,
+  },
+  gainAmount: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFD700',
+  },
+  gainRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  gainLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  gainValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0055A4',
+  },
+  gainsInfoSection: {
+    marginVertical: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(240, 240, 255, 0.8)',
+    borderRadius: 8,
+  },
+  gainsTextHighlight: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    textShadowColor: '#0055A4',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  gainsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  gainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#0055A4', 
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    backgroundColor: 'transparent', 
+  },
+  gainText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  gainSecondContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  gainSecondText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  gainHigh: {
+    backgroundColor: '#28a745',
+    color: '#FFFFFF',
+  },
+  gainMedium: {
+    backgroundColor: '#ffc107',
+    color: '#000000',
+  },
+  gainLow: {
+    backgroundColor: '#6c757d',
+    color: '#FFFFFF',
+  },
   tirageSection: {
     marginBottom: 10,
     alignItems: 'center',
@@ -330,40 +441,19 @@ const styles = StyleSheet.create({
   textChanceNonTrouve: {
     color: '#FFFFFF',
   },
-  gainHighlightContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-    backgroundColor: '#f5f5f5',
+  secondTirageSection: {
+    marginTop: 10,
+    marginBottom: 5,
+    borderColor: '#0055A4',
+    borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 10,
+    padding: 10,
   },
-  gainHighlightText: {
-    fontSize: 18,
+  secondTirageTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
-    marginRight: 8,
-  },
-  gainAmount: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFD700', 
-  },
-  gainRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  gainLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  gainValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0055A4',
+    color: '#333333',
+    marginBottom: 5,
   },
 });
 
