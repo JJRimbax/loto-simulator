@@ -14,7 +14,7 @@ const ResultsModal = ({
   nombreTours,
   numerosTirage,
   numeroChanceTirage,
-  numerosSecondTirage,
+  numerosSecondTirage,  // Assure-toi que ce prop est bien passé ici
   resultatsGrilles,
 }) => {
   return (
@@ -26,7 +26,6 @@ const ResultsModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          {/* Bouton pour fermer la modal */}
           <TouchableOpacity
             style={styles.closeButton}
             onPress={onClose}
@@ -109,7 +108,7 @@ const ResultsModal = ({
                           </View>
                         );
                       })}
-                      {/* Afficher le numéro chance avec la couleur conditionnelle */}
+
                       <View style={[
                         styles.numeroBallResult,
                         resultat.chanceTrouve ? styles.chanceBallResult : styles.chanceBallNonTrouve
@@ -123,12 +122,12 @@ const ResultsModal = ({
                       </View>
                     </View>
 
-                    {/* Afficher le second tirage pour cette grille */}
+                    {/* Afficher les numéros trouvés du second tirage si applicable */}
                     {resultat.secondTirage && numerosSecondTirage.length === 5 && (
                       <View style={styles.secondTirageSection}>
                         <Text style={styles.secondTirageTitle}>Résultat du Second Tirage:</Text>
                         <View style={styles.resultNumerosContainer}>
-                          {numerosSecondTirage.map((num, idx) => {
+                          {resultat.numeros.map((num, idx) => {
                             const estTrouveSecond = resultat.numerosSecondTrouves.includes(num);
                             return (
                               <View
@@ -153,7 +152,6 @@ const ResultsModal = ({
                       </View>
                     )}
 
-                    {/* Afficher les gains principaux */}
                     {resultat.gain && (
                       <View style={styles.gainContainer}>
                         <FontAwesome name="star" size={16} color="#0055A4" style={{ marginRight: 5 }} />
@@ -161,7 +159,6 @@ const ResultsModal = ({
                       </View>
                     )}
 
-                    {/* Afficher les gains du second tirage */}
                     {resultat.gainSecond && (
                       <View style={styles.gainSecondContainer}>
                         <FontAwesome name="star" size={16} color="#E50000" style={{ marginRight: 5 }} />
@@ -184,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
     padding: 10,
   },
   modalContent: {
@@ -193,10 +190,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     maxHeight: '80%',
     alignItems: 'center',
-    width: '90%', 
+    width: '90%',
   },
   sectionTitleModal: {
-    fontSize: 16, 
+    fontSize: 16,
     marginBottom: 8,
     color: 'black',
     fontWeight: 'bold',
@@ -208,7 +205,7 @@ const styles = StyleSheet.create({
   },
   tirageNumeros: {
     flexDirection: 'row',
-    flexWrap: 'nowrap', 
+    flexWrap: 'nowrap',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -216,7 +213,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#0055A4', 
+    backgroundColor: '#0055A4',
     justifyContent: 'center',
     alignItems: 'center',
     margin: 3,
@@ -262,11 +259,11 @@ const styles = StyleSheet.create({
     borderColor: '#0055A4',
   },
   numeroTrouve: {
-    backgroundColor: '#0055A4', 
+    backgroundColor: '#0055A4',
     borderColor: '#0055A4',
   },
   numeroNonTrouve: {
-    backgroundColor: '#6c757d', 
+    backgroundColor: '#6c757d',
     borderColor: '#6c757d',
   },
   numeroTextResult: {
@@ -285,7 +282,7 @@ const styles = StyleSheet.create({
     borderColor: '#E50000',
   },
   chanceBallNonTrouve: {
-    backgroundColor: 'rgba(229, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(229, 0, 0, 0.5)',
     borderColor: 'rgba(229, 0, 0, 0.5)',
   },
   textChanceResult: {
