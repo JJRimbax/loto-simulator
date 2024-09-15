@@ -3,21 +3,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LotoScreen from './screens/lotoScreen'; 
+import HomeScreen from './screens/HomeScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="LotoScreen"
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
+      <Stack.Navigator initialRouteName="HomeScreen">
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          options={{ headerShown: false }} // Supprime le bandeau en haut
+        />
         <Stack.Screen
           name="LotoScreen"
           component={LotoScreen}
+          options={{ headerShown: false }} // Supprime le bandeau en haut
         />
       </Stack.Navigator>
     </NavigationContainer>
