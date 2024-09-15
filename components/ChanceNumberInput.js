@@ -39,24 +39,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFFFFF',
     padding: 8,
-    width: 45, 
+    width: 45,
     margin: 3,
     textAlign: 'center',
     borderRadius: 5,
     backgroundColor: '#FFFFFF',
-    fontSize: 16, 
+    fontSize: 16,
   },
   flashButton: {
-    backgroundColor: '#E50000', 
-    paddingVertical: 8,
+    backgroundColor: '#E50000',
+    paddingVertical: 12, // Hauteur ajustée
     paddingHorizontal: 15,
     borderRadius: 5,
     marginLeft: 5,
+    height: 45, // Hauteur uniforme
+    justifyContent: 'center',
   },
   flashButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14, 
+    fontSize: 14,
   },
 });
 

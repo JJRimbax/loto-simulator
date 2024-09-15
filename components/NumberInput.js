@@ -24,43 +24,47 @@ const NumberInput = ({ numeros, onChangeNumero, onFlashPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  numerosContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-    padding: 8,
-    width: 45, 
-    margin: 3,
-    textAlign: 'center',
-    borderRadius: 5,
-    backgroundColor: '#FFFFFF',
-    fontSize: 16, 
-  },
-  flashButtonBlue: {
-    backgroundColor: '#0055A4', 
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  flashButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14, 
-  },
-});
+
+  const styles = StyleSheet.create({
+    sectionTitle: {
+      fontSize: 16,
+      marginBottom: 8,
+      color: 'white',
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    numerosContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#FFFFFF',
+      padding: 8,
+      width: 45,
+      margin: 3,
+      textAlign: 'center',
+      borderRadius: 5,
+      backgroundColor: '#FFFFFF',
+      fontSize: 16,
+    },
+    flashButtonBlue: {
+      backgroundColor: '#0055A4',
+      paddingVertical: 12, // Hauteur ajustée
+      paddingHorizontal: 15,
+      borderRadius: 5,
+      marginLeft: 5,
+      height: 45, // Hauteur uniforme
+      justifyContent: 'center',
+    },
+    flashButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 14,
+    },
+  });
+  
 
 export default NumberInput;

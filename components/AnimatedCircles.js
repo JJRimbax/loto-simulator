@@ -29,7 +29,6 @@ const AnimatedCircles = ({ circleAnimations }) => {
 
   return (
     <View style={styles.animationContainer}>
-      <Text style={styles.animationText}>Tirage en cours...</Text>
       <View style={styles.animationCirclesContainer}>
         {circleAnimations.map((anim, index) => (
           <Animated.View

@@ -385,7 +385,7 @@ export default function LotoScreen() {
                   style={styles.grillesButton}
                   onPress={() => setGrillesModalVisible(true)}
                 >
-                  <Text style={styles.buttonText}>Grilles Jouées ({grilles.length})</Text>
+                  <Text style={styles.buttonText}>({grilles.length})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
                   <FontAwesome name="refresh" size={20} color="white" />
@@ -470,17 +470,11 @@ export default function LotoScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#2C77AF',
+    backgroundColor: '#2C77AF', // Couleur de fond principale
   },
   container: {
     marginTop: 30,
     flex: 1,
-  },
-  gainsTextHighlight: {
-    fontSize: 16,
-    color: '#28a745',
-    marginVertical: 2,
-    fontWeight: 'bold',
   },
   content: {
     alignItems: 'center',
@@ -500,24 +494,46 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  buttonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%', // Largeur totale pour les deux boutons égale à celle du bouton "Générer des Grilles"
+    marginVertical: 10,
+  },
+  grillesButton: {
+    backgroundColor: '#0055A4',
+    flex: 1, // Les deux boutons (Grilles Jouées et Réinitialiser) partagent équitablement l'espace
+    marginRight: 5,
+    height: 45, // Assure que le bouton ait la même hauteur que les autres
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  resetButton: {
+    backgroundColor: '#E50000',
+    flex: 1, // Partage également l'espace avec le bouton "Grilles Jouées"
+    height: 45, // Hauteur uniforme
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
   depotRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '60%',
-  },
-  numerosContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
+    width: '60%',
   },
   input: {
     borderWidth: 1,
     borderColor: '#FFFFFF',
     padding: 8,
     width: 150,
-    margin: 3,
     textAlign: 'center',
     borderRadius: 5,
     backgroundColor: '#FFFFFF',
@@ -530,7 +546,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 10,
     width: '60%',
+    height: 45, // Hauteur uniforme
     alignItems: 'center',
+    justifyContent: 'center',
   },
   genererButton: {
     backgroundColor: '#0055A4',
@@ -538,47 +556,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 5,
     marginTop: 10,
-    width: '60%',
+    width: '60%', // Même largeur pour s'aligner avec les autres boutons
+    height: 45, // Hauteur uniforme
     alignItems: 'center',
+    justifyContent: 'center',
   },
   genererButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
+    color: '#FFFFFF', // Change le texte en blanc
     fontWeight: 'bold',
-  },
-  buttonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '60%',
-    marginVertical: 10,
-  },
-  grillesButton: {
-    backgroundColor: '#0055A4',
-    paddingVertical: 12,
-    paddingHorizontal: 15, // Réduit la largeur
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  resetButton: {
-    backgroundColor: '#E50000',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
+    fontSize: 16, // Assure que la police soit uniforme avec les autres boutons
     textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   depotButton: {
     backgroundColor: '#E50000',
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 25,
     borderRadius: 5,
     alignItems: 'center',
+    height: 45, 
+    justifyContent: 'center',
+  },
+  playButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: '60%',
+    height: 45, // Hauteur uniforme
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   soldeSectionMain: {
     alignItems: 'center',
@@ -592,13 +599,12 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 5,
   },
-  playButton: {
-    backgroundColor: '#0055A4',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 5,
-    marginVertical: 10,
-    width: '60%',
-    alignItems: 'center',
+  gainsTextHighlight: {
+    fontSize: 16,
+    color: '#28a745',
+    marginVertical: 2,
+    fontWeight: 'bold',
   },
 });
+
+
