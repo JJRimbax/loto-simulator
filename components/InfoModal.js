@@ -22,24 +22,7 @@ const InfoModal = ({ visible, onClose }) => {
           <ScrollView>
             <Text style={styles.modalTitle}>Informations sur le Jeu</Text>
             <Text style={styles.modalText}>
-              Prix par grille :
-              {'\n'}- Grille simple : 2€
-              {'\n'}- Option Second Tirage : +1€ par grille
-              {'\n\n'}Gains possibles :
-              {'\n'}- 5 numéros + Numéro Chance : Jackpot
-              {'\n'}- 5 numéros : 100 000€
-              {'\n'}- 4 numéros + Numéro Chance : 1 000€
-              {'\n'}- 4 numéros : 400€
-              {'\n'}- 3 numéros + Numéro Chance : 50€
-              {'\n'}- 3 numéros : 20€
-              {'\n'}- 2 numéros + Numéro Chance : 10€
-              {'\n'}- 2 numéros : 4€
-              {'\n'}- 1 numéro + Numéro Chance ou Numéro Chance seul : 2€
-              {'\n\n'}Gains Second Tirage :
-              {'\n'}- 5 numéros : 100 000€
-              {'\n'}- 4 numéros : 1 000€
-              {'\n'}- 3 numéros : 10€
-              {'\n'}- 2 numéros : 2€
+              {/* Votre texte ici */}
             </Text>
           </ScrollView>
         </View>

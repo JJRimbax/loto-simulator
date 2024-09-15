@@ -1,5 +1,3 @@
-// screens/LotoScreen.js
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
@@ -13,29 +11,20 @@ import {
   Keyboard,
   ScrollView,
   TextInput,
-  Text, // Importé
+  Text, 
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
 
-// Importation des composants
 import Header from '../components/Header';
 import JackpotDisplay from '../components/JackpotDisplay';
 import NumberInput from '../components/NumberInput';
 import ChanceNumberInput from '../components/ChanceNumberInput';
-import GrillesList from '../components/GrillesList';
 import BalanceDisplay from '../components/BalanceDisplay';
 import AnimatedCircles from '../components/AnimatedCircles';
+import InfoModal from '../components/InfoModal';
+import GenerateGrillesModal from '../components/GenerateGrillesModal';
+import GrillesModal from '../components/GrillesModal';
+import ResultsModal from '../components/ResultsModal';
 
-// Importation des modals
-import InfoModal from '../components/Modals/InfoModal';
-import GenerateGrillesModal from '../components/Modals/GenerateGrillesModal';
-import GrillesModal from '../components/Modals/GrillesModal';
-import ResultsModal from '../components/Modals/ResultsModal';
-
-// Importation des utilitaires
-import { formatMontant } from '../utils/formatMontant';
-
-// Fonctions utilitaires
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -163,43 +152,6 @@ export default function LotoScreen() {
       setIsAnimating(false);
       callback();
     });
-  };
-
-  // Fonction pour générer des numéros aléatoires (Flash) avec animation
-  const flashNumeros = () => {
-    let iterations = 10;
-    let count = 0;
-
-    const interval = setInterval(() => {
-      const randomNumbers = getRandomUniqueNumbers(5, 1, 49);
-      setNumerosInput(randomNumbers.map(num => num.toString()));
-
-      count++;
-      if (count >= iterations) {
-        clearInterval(interval);
-        // Définir les numéros finaux
-        const numeros = getRandomUniqueNumbers(5, 1, 49);
-        setNumerosInput(numeros.map(num => num.toString()));
-      }
-    }, 100);
-  };
-
-  const flashNumeroChance = () => {
-    let iterations = 10;
-    let count = 0;
-
-    const interval = setInterval(() => {
-      const randomNumber = getRandomNumber(1, 10);
-      setNumeroChanceInput(randomNumber.toString());
-
-      count++;
-      if (count >= iterations) {
-        clearInterval(interval);
-        // Définir le numéro final
-        const numero = getRandomNumber(1, 10);
-        setNumeroChanceInput(numero.toString());
-      }
-    }, 100);
   };
 
   // Fonction pour ajouter une grille
@@ -370,8 +322,8 @@ export default function LotoScreen() {
         // Ajout des propriétés `chance` et `secondTirage` au résultat
         tempResultatsGrilles.push({
           numeros: grille.numeros,
-          chance: grille.chance, // Ajouté
-          secondTirage: grille.secondTirage, // Ajouté
+          chance: grille.chance,
+          secondTirage: grille.secondTirage,
           numerosTrouves: numerosTrouves,
           chanceTrouve: chanceTrouve,
           gain: gain > 0 ? gain : null,
@@ -439,6 +391,17 @@ export default function LotoScreen() {
     });
   };
 
+  // Fonctions de flash déjà définies
+  const flashNumeros = () => {
+    const numerosAleatoires = getRandomUniqueNumbers(5, 1, 49).map(num => num.toString());
+    setNumerosInput(numerosAleatoires);
+  };
+
+  const flashNumeroChance = () => {
+    const numeroAleatoire = getRandomNumber(1, 10).toString();
+    setNumeroChanceInput(numeroAleatoire);
+  };
+
   return (
     <View style={styles.background}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -465,14 +428,14 @@ export default function LotoScreen() {
                   newNumeros[index] = text.replace(/[^0-9]/g, '');
                   setNumerosInput(newNumeros);
                 }}
-                onFlashPress={flashNumeros} // Passage de la fonction
+                onFlashPress={flashNumeros}
               />
 
               {/* Entrée pour le numéro chance */}
               <ChanceNumberInput
                 numeroChance={numeroChanceInput}
                 onChangeChance={(text) => setNumeroChanceInput(text.replace(/[^0-9]/g, ''))}
-                onFlashPress={flashNumeroChance} // Passage de la fonction
+                onFlashPress={flashNumeroChance}
               />
 
               {/* Bouton pour ajouter la grille */}
@@ -591,6 +554,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C77AF', 
   },
   container: {
+    marginTop: 40, 
     flex: 1,
   },
   gainsTextHighlight: {
@@ -609,6 +573,13 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginVertical: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   numerosContainer: {
     flexDirection: 'row',
@@ -681,5 +652,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 5,
     marginLeft: 5,
+  },
+  soldeSectionMain: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  soldeText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 2,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  playButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: '60%',
+    alignItems: 'center',
+  },
+  animationContainer: {
+    marginTop: 10, 
+    alignItems: 'center',
+  },
+  animationText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 10,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  animationCirclesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  animationCircle: {
+    width: 30, 
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#0055A4',
+    margin: 5,
+  },
+  chanceBallTirage: {
+    backgroundColor: '#E50000', 
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { formatMontant } from '../../utils/formatMontant';
+import { formatMontant } from '../utils/formatMontant';
 
 const ResultsModal = ({
   visible,
