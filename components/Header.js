@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 const Header = ({ onInfoPress }) => {
   return (
     <View style={styles.header}>
-      <FontAwesome name="ticket" size={32} color="#FFFFFF" style={styles.titleIcon} />
-      <Text style={styles.title}>Simulateur de Loto</Text>
+      <Image source={require('../assets/Nouveau_logo_loto.png')} style={styles.logo} />
       <TouchableOpacity style={styles.infoButton} onPress={onInfoPress}>
         <FontAwesome name="question-circle" size={28} color="#FFFFFF" />
       </TouchableOpacity>
@@ -31,15 +30,11 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
   },
-  title: {
-    fontSize: 24, 
-    textAlign: 'center',
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  logo: {
+    width: 200, // Largeur du logo
+    height: 80, // Hauteur du logo
+    resizeMode: 'contain', // Ajuste l'image à la taille sans déformation
     marginVertical: 10,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
   },
 });
 

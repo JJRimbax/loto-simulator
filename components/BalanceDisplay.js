@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   soldeAmount: {
-    fontSize: 18, // Taille du montant
+    fontSize: 18, 
     color: '#FFD700',
     fontWeight: 'bold',
     textShadowColor: '#E50000',

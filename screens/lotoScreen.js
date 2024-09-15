@@ -11,9 +11,9 @@ import {
   Keyboard,
   ScrollView,
   TextInput,
-  Text,
-  ActivityIndicator // Import de l'ActivityIndicator
+  Text
 } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons'; // Import pour utiliser l'icône
 
 import Header from '../components/Header';
 import JackpotDisplay from '../components/JackpotDisplay';
@@ -380,23 +380,22 @@ export default function LotoScreen() {
             </View>
 
             {grilles.length > 0 && (
-              <TouchableOpacity
-                style={styles.grillesButton}
-                onPress={() => setGrillesModalVisible(true)}
-              >
-                <Text style={styles.buttonText}>Grilles Jouées ({grilles.length})</Text>
-              </TouchableOpacity>
-            )}
-
-            {grilles.length > 0 && (
-              <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
-                <Text style={styles.buttonText}>Réinitialiser les Grilles</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonsRow}>
+                <TouchableOpacity
+                  style={styles.grillesButton}
+                  onPress={() => setGrillesModalVisible(true)}
+                >
+                  <Text style={styles.buttonText}>Grilles Jouées ({grilles.length})</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
+                  <FontAwesome name="refresh" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
             )}
 
             <View style={styles.inputSection}>
               <Text style={styles.sectionTitle}>Déposer Solde:</Text>
-              <View style={styles.numerosContainer}>
+              <View style={styles.depotRow}>
                 <TextInput
                   style={styles.input}
                   keyboardType="numeric"
@@ -406,16 +405,15 @@ export default function LotoScreen() {
                   placeholderTextColor="#AAAAAA"
                 />
                 <TouchableOpacity style={styles.depotButton} onPress={deposerSolde}>
-                  <Text style={styles.buttonText}>Déposer</Text>
+                  <Text style={styles.buttonText}>€</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             <BalanceDisplay solde={solde} />
 
-            {/* Remplacement du bouton jouer par le chargement */}
             {isAnimating ? (
-              <ActivityIndicator size="large" color="#FFFFFF" />
+              <AnimatedCircles circleAnimations={circleAnimations} />
             ) : (
               <TouchableOpacity
                 style={styles.playButton}
@@ -424,10 +422,6 @@ export default function LotoScreen() {
               >
                 <Text style={styles.buttonText}>Jouer</Text>
               </TouchableOpacity>
-            )}
-
-            {isAnimating && (
-              <AnimatedCircles circleAnimations={circleAnimations} />
             )}
           </ScrollView>
 
@@ -506,6 +500,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  depotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '60%',
+  },
   numerosContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFFFFF',
     padding: 8,
-    width: 45,
+    width: 150,
     margin: 3,
     textAlign: 'center',
     borderRadius: 5,
@@ -547,13 +547,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  buttonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%',
+    marginVertical: 10,
+  },
   grillesButton: {
     backgroundColor: '#0055A4',
     paddingVertical: 12,
-    paddingHorizontal: 25,
+    paddingHorizontal: 15, // Réduit la largeur
     borderRadius: 5,
-    marginVertical: 5,
-    width: '60%',
+    alignItems: 'center',
+  },
+  resetButton: {
+    backgroundColor: '#E50000',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 5,
     alignItems: 'center',
   },
   buttonText: {
@@ -562,21 +573,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  resetButton: {
-    backgroundColor: '#E50000',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 5,
-    marginTop: 10,
-    width: '60%',
-    alignItems: 'center',
-  },
   depotButton: {
     backgroundColor: '#E50000',
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
-    marginLeft: 5,
+    alignItems: 'center',
   },
   soldeSectionMain: {
     alignItems: 'center',
