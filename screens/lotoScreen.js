@@ -89,6 +89,7 @@ export default function LotoScreen() {
   const [jackpot, setJackpot] = useState(2000000);
   const [numerosTirage, setNumerosTirage] = useState([]);
   const [numeroChanceTirage, setNumeroChanceTirage] = useState(null);
+  const [numerosSecondTirage, setNumerosSecondTirage] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [grillesModalVisible, setGrillesModalVisible] = useState(false); 
@@ -128,12 +129,13 @@ export default function LotoScreen() {
 
   const lancerAnimationTirage = (callback) => {
     setIsAnimating(true);
+
     circleAnimations.forEach((anim) => anim.setValue(0));
 
     const animations = circleAnimations.map((anim) => {
       return Animated.timing(anim, {
         toValue: 1,
-        duration: 500, 
+        duration: 500,
         useNativeDriver: false,
       });
     });
@@ -225,9 +227,13 @@ export default function LotoScreen() {
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
     const numeroChanceTire = getRandomNumber(1, 10);
 
+    // Tirage différent pour le second tirage
+    const numerosSecondTires = getRandomUniqueNumbers(5, 1, 49);
+
     lancerAnimationTirage(() => {
       setNumerosTirage(numerosTires);
       setNumeroChanceTirage(numeroChanceTire);
+      setNumerosSecondTirage(numerosSecondTires); // Nouveau tirage pour le second
 
       let gainTotalTour = 0;
       let newMeilleurGain = meilleurGain;
@@ -245,12 +251,12 @@ export default function LotoScreen() {
         if (grille.secondTirage) {
           gainSecond = calculerGains(
             grille.numeros, 
-            0,             
-            numerosTires,   
-            0,             
-            true           
+            0,              
+            numerosSecondTires, // Utiliser le nouveau second tirage ici
+            0,              
+            true
           );
-          numerosSecondTrouves = grille.numeros.filter(num => numerosTires.includes(num));
+          numerosSecondTrouves = grille.numeros.filter(num => numerosSecondTires.includes(num));
         }
 
         let gainTotalGrille = gain > 0 ? gain : 0;
@@ -274,7 +280,7 @@ export default function LotoScreen() {
       });
 
       if (!jackpotGagne) {
-        setJackpot((prevJackpot) => prevJackpot + 1000000); 
+        setJackpot((prevJackpot) => prevJackpot + 1000000);
       }
 
       setMeilleurGain(newMeilleurGain);
@@ -453,7 +459,7 @@ export default function LotoScreen() {
             nombreTours={nombreTours}
             numerosTirage={numerosTirage}
             numeroChanceTirage={numeroChanceTirage}
-            numerosSecondTirage={numerosTirage} 
+            numerosSecondTirage={numerosSecondTirage} // Second tirage distinct
             resultatsGrilles={resultatsGrilles}
           />
         </KeyboardAvoidingView>
