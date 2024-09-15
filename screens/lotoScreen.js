@@ -11,7 +11,8 @@ import {
   Keyboard,
   ScrollView,
   TextInput,
-  Text, 
+  Text,
+  ActivityIndicator // Import de l'ActivityIndicator
 } from 'react-native';
 
 import Header from '../components/Header';
@@ -81,7 +82,7 @@ export default function LotoScreen() {
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState('');
-  const [resultatsGrilles, setResultatsGrilles] = useState([]); 
+  const [resultatsGrilles, setResultatsGrilles] = useState([]);
   const [totalGains, setTotalGains] = useState(0);
   const [nombreTours, setNombreTours] = useState(0);
   const [totalDepense, setTotalDepense] = useState(0);
@@ -92,12 +93,12 @@ export default function LotoScreen() {
   const [numerosSecondTirage, setNumerosSecondTirage] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [grillesModalVisible, setGrillesModalVisible] = useState(false); 
-  const [modalGenererVisible, setModalGenererVisible] = useState(false); 
+  const [grillesModalVisible, setGrillesModalVisible] = useState(false);
+  const [modalGenererVisible, setModalGenererVisible] = useState(false);
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
-  const [secondTirageGenerer, setSecondTirageGenerer] = useState(false); 
-  const [modalInfoVisible, setModalInfoVisible] = useState(false); 
-  const [gainDernierTour, setGainDernierTour] = useState(0); 
+  const [secondTirageGenerer, setSecondTirageGenerer] = useState(false);
+  const [modalInfoVisible, setModalInfoVisible] = useState(false);
+  const [gainDernierTour, setGainDernierTour] = useState(0);
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -123,7 +124,7 @@ export default function LotoScreen() {
           duration: 1000,
           useNativeDriver: true,
         }),
-      ]),
+      ])
     ).start();
   }, []);
 
@@ -227,13 +228,12 @@ export default function LotoScreen() {
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
     const numeroChanceTire = getRandomNumber(1, 10);
 
-    // Tirage différent pour le second tirage
     const numerosSecondTires = getRandomUniqueNumbers(5, 1, 49);
 
     lancerAnimationTirage(() => {
       setNumerosTirage(numerosTires);
       setNumeroChanceTirage(numeroChanceTire);
-      setNumerosSecondTirage(numerosSecondTires); // Nouveau tirage pour le second
+      setNumerosSecondTirage(numerosSecondTires);
 
       let gainTotalTour = 0;
       let newMeilleurGain = meilleurGain;
@@ -250,10 +250,10 @@ export default function LotoScreen() {
 
         if (grille.secondTirage) {
           gainSecond = calculerGains(
-            grille.numeros, 
-            0,              
-            numerosSecondTires, // Utiliser le nouveau second tirage ici
-            0,              
+            grille.numeros,
+            0,
+            numerosSecondTires,
+            0,
             true
           );
           numerosSecondTrouves = grille.numeros.filter(num => numerosSecondTires.includes(num));
@@ -413,13 +413,18 @@ export default function LotoScreen() {
 
             <BalanceDisplay solde={solde} />
 
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={jouer}
-              disabled={isAnimating}
-            >
-              <Text style={styles.buttonText}>Jouer</Text>
-            </TouchableOpacity>
+            {/* Remplacement du bouton jouer par le chargement */}
+            {isAnimating ? (
+              <ActivityIndicator size="large" color="#FFFFFF" />
+            ) : (
+              <TouchableOpacity
+                style={styles.playButton}
+                onPress={jouer}
+                disabled={isAnimating}
+              >
+                <Text style={styles.buttonText}>Jouer</Text>
+              </TouchableOpacity>
+            )}
 
             {isAnimating && (
               <AnimatedCircles circleAnimations={circleAnimations} />
@@ -459,7 +464,7 @@ export default function LotoScreen() {
             nombreTours={nombreTours}
             numerosTirage={numerosTirage}
             numeroChanceTirage={numeroChanceTirage}
-            numerosSecondTirage={numerosSecondTirage} // Second tirage distinct
+            numerosSecondTirage={numerosSecondTirage}
             resultatsGrilles={resultatsGrilles}
           />
         </KeyboardAvoidingView>
@@ -471,15 +476,15 @@ export default function LotoScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#2C77AF', 
+    backgroundColor: '#2C77AF',
   },
   container: {
-    marginTop: 30, 
+    marginTop: 30,
     flex: 1,
   },
   gainsTextHighlight: {
     fontSize: 16,
-    color: '#28a745', 
+    color: '#28a745',
     marginVertical: 2,
     fontWeight: 'bold',
   },
@@ -511,12 +516,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFFFFF',
     padding: 8,
-    width: 45, 
+    width: 45,
     margin: 3,
     textAlign: 'center',
     borderRadius: 5,
     backgroundColor: '#FFFFFF',
-    fontSize: 16, 
+    fontSize: 16,
   },
   addButton: {
     backgroundColor: '#E50000',
@@ -532,7 +537,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginTop: 10, 
+    marginTop: 10,
     width: '60%',
     alignItems: 'center',
   },
@@ -554,7 +559,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 16, 
+    fontSize: 16,
     fontWeight: 'bold',
   },
   resetButton: {

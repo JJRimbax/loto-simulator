@@ -5,7 +5,11 @@ import { formatMontant } from '../utils/formatMontant';
 const BalanceDisplay = ({ solde }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.soldeText}>💳 Solde actuel: {formatMontant(solde)}€</Text>
+      <View style={styles.balanceBox}>
+        <Text style={styles.soldeText}>
+          💳 Solde: <Text style={styles.soldeAmount}>{formatMontant(solde)}€</Text>
+        </Text>
+      </View>
     </View>
   );
 };
@@ -13,15 +17,34 @@ const BalanceDisplay = ({ solde }) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 12,
+  },
+  balanceBox: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 6,
   },
   soldeText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#FFFFFF',
-    marginBottom: 2,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  soldeAmount: {
+    fontSize: 18, // Taille du montant
+    color: '#FFD700',
+    fontWeight: 'bold',
+    textShadowColor: '#E50000',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
 });
 
