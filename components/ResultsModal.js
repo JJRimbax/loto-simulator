@@ -230,9 +230,9 @@ const styles = StyleSheet.create({
   closeButton: {
     position: 'absolute',
     top: 10,
-    right: 10, // Aligne la croix à droite
+    right: 10, 
     padding: 5,
-    zIndex: 1, // Assure que le bouton soit au-dessus du contenu
+    zIndex: 1, 
   },
   closeButtonText: {
     color: '#000',

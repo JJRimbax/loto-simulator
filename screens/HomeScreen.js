@@ -15,6 +15,13 @@ const HomeScreen = () => {
       >
         <Text style={styles.buttonText}>LOTO</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.euroButton}
+        onPress={() => navigation.navigate('EuroScreen')} // Ajout de la navigation vers EuroScreen
+      >
+        <Text style={styles.buttonText}>EURO MILLION</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -22,7 +29,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C77AF', // Même couleur de fond que LotoScreen
+    backgroundColor: '#2C77AF', 
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -35,6 +42,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   lotoButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20, 
+  },
+  euroButton: {
     backgroundColor: '#0055A4',
     paddingVertical: 15,
     paddingHorizontal: 50,

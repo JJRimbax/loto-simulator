@@ -13,7 +13,7 @@ import {
   TextInput,
   Text
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Import pour utiliser l'icône
+import { FontAwesome } from '@expo/vector-icons'; 
 
 import Header from '../components/Header';
 import JackpotDisplay from '../components/JackpotDisplay';
@@ -470,7 +470,7 @@ export default function LotoScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#2C77AF', // Couleur de fond principale
+    backgroundColor: '#2C77AF', 
   },
   container: {
     marginTop: 30,
@@ -497,22 +497,22 @@ const styles = StyleSheet.create({
   buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '60%', // Largeur totale pour les deux boutons égale à celle du bouton "Générer des Grilles"
+    width: '60%', 
     marginVertical: 10,
   },
   grillesButton: {
     backgroundColor: '#0055A4',
-    flex: 1, // Les deux boutons (Grilles Jouées et Réinitialiser) partagent équitablement l'espace
+    flex: 1, 
     marginRight: 5,
-    height: 45, // Assure que le bouton ait la même hauteur que les autres
+    height: 45, 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
   },
   resetButton: {
     backgroundColor: '#E50000',
-    flex: 1, // Partage également l'espace avec le bouton "Grilles Jouées"
-    height: 45, // Hauteur uniforme
+    flex: 1, 
+    height: 45, 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 10,
     width: '60%',
-    height: 45, // Hauteur uniforme
+    height: 45, 
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -556,15 +556,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 5,
     marginTop: 10,
-    width: '60%', // Même largeur pour s'aligner avec les autres boutons
-    height: 45, // Hauteur uniforme
+    width: '60%', 
+    height: 45, 
     alignItems: 'center',
     justifyContent: 'center',
   },
   genererButtonText: {
-    color: '#FFFFFF', // Change le texte en blanc
+    color: '#FFFFFF', 
     fontWeight: 'bold',
-    fontSize: 16, // Assure que la police soit uniforme avec les autres boutons
+    fontSize: 16, 
     textAlign: 'center',
   },
   depotButton: {
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 10,
     width: '60%',
-    height: 45, // Hauteur uniforme
+    height: 45, 
     alignItems: 'center',
     justifyContent: 'center',
   },

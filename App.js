@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LotoScreen from './screens/lotoScreen'; 
 import HomeScreen from './screens/HomeScreen';
+import EuroScreen from './screens/euroScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,11 @@ export default function App() {
         <Stack.Screen
           name="LotoScreen"
           component={LotoScreen}
+          options={{ headerShown: false }} // Supprime le bandeau en haut
+        />
+        <Stack.Screen
+          name="EuroScreen"
+          component={EuroScreen}
           options={{ headerShown: false }} // Supprime le bandeau en haut
         />
       </Stack.Navigator>
