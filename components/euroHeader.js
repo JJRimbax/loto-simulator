@@ -1,12 +1,23 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const EuroHeader = ({ onInfoPress }) => {
+  const navigation = useNavigation(); 
+
   return (
     <View style={styles.header}>
-      <FontAwesome name="ticket" size={32} color="#FFFFFF" style={styles.titleIcon} />
-      <Text style={styles.title}>Simulateur Euromillion</Text>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('HomeScreen')}>
+        <FontAwesome name="arrow-left" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+
+      <Image
+        source={require('../assets/Euromillions.png')} 
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <TouchableOpacity style={styles.infoButton} onPress={onInfoPress}>
         <FontAwesome name="question-circle" size={28} color="#FFFFFF" />
       </TouchableOpacity>
@@ -20,9 +31,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    marginBottom: 20,
   },
-  titleIcon: {
+  backButton: {
     position: 'absolute',
+    top: 10,
     left: 10,
   },
   infoButton: {
@@ -30,15 +43,10 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
   },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  logo: {
+    width: 250, 
+    height: 100, 
     marginVertical: 10,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
   },
 });
 

@@ -8,17 +8,22 @@ import {
   Alert,
   TouchableOpacity,
   Text,
-  Animated, 
+  TextInput,
+  Animated,
+  StyleSheet,
   Platform,
 } from 'react-native';
-import EuroHeader from '../components/EuroHeader';
-import EuroJackpot from '../components/EuroJackpot';
-import EuroInputSection from '../components/EuroInputSection';
+import EuroHeader from '../components/euroHeader';
+import EuroSoldeDisplay from '../components/EuroSoldeDisplay';
+import EuroJackpot from '../components/euroJackpot';
+import EuroInputSection from '../components/euroInputSection';
 import EuroAnimation from '../components/EuroAnimation';
 import EuroResultModal from '../components/EuroResultModal';
 import EuroGrillesModal from '../components/EuroGrillesModal';
 import EuroGenererModal from '../components/EuroGenererModal';
 import EuroInfoModal from '../components/EuroInfoModal'; 
+import { FontAwesome } from '@expo/vector-icons';
+import { formatMontant } from '../utils/formatMontant';
 
 const EuroScreen = () => {
   const [numerosInput, setNumerosInput] = useState(['', '', '', '', '']);
@@ -35,12 +40,12 @@ const EuroScreen = () => {
   const [numerosTirage, setNumerosTirage] = useState([]);
   const [etoilesTirage, setEtoilesTirage] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [etoilePlus, setEtoilePlus] = useState(false); // Option Etoile +
+  const [etoilePlus, setEtoilePlus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [grillesModalVisible, setGrillesModalVisible] = useState(false);
   const [modalGenererVisible, setModalGenererVisible] = useState(false);
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
-  const [modalInfoVisible, setModalInfoVisible] = useState(false);
+  const [modalInfoVisible, setModalInfoVisible] = useState(false); // État pour la modal d'info
   const [gainDernierTour, setGainDernierTour] = useState(0);
 
   const circleAnimations = useRef([
@@ -283,7 +288,7 @@ const EuroScreen = () => {
     let gain = gains[key] || 0;
 
     if (etoilePlus && gain !== 'Jackpot') {
-      gain = Math.floor(gain * 1.12); // Augmenter de 12%
+      gain = Math.floor(gain * 1.12);
     }
 
     return gain;
@@ -307,96 +312,131 @@ const EuroScreen = () => {
 
   return (
     <View style={styles.background}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Header */}
+        <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
+
+        {/* Jackpot */}
+        <EuroJackpot jackpotAnimation={jackpotAnimation} jackpot={jackpot} />
+
+        {/* Section de création de grilles */}
+        <EuroInputSection
+          numerosInput={numerosInput}
+          etoilesInput={etoilesInput}
+          flashNumeros={flashNumeros}
+          flashEtoiles={flashEtoiles}
+          setNumerosInput={setNumerosInput}
+          setEtoilesInput={setEtoilesInput}
+          etoilePlus={etoilePlus}
+          setEtoilePlus={setEtoilePlus}
+          ajouterGrille={ajouterGrille}
+        />
+
+        {/* Bouton pour générer des grilles */}
+        <TouchableOpacity
+          style={styles.genererButton}
+          onPress={() => setModalGenererVisible(true)}
         >
-          <ScrollView contentContainerStyle={styles.content}>
-            <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
-            <EuroJackpot jackpotAnimation={jackpotAnimation} jackpot={jackpot} />
-            <EuroInputSection
-              numerosInput={numerosInput}
-              etoilesInput={etoilesInput}
-              flashNumeros={flashNumeros}  // Appel de flashNumeros
-              flashEtoiles={flashEtoiles}  // Appel de flashEtoiles
-              setNumerosInput={setNumerosInput}
-              setEtoilesInput={setEtoilesInput}
-              etoilePlus={etoilePlus}
-              setEtoilePlus={setEtoilePlus}
-              ajouterGrille={ajouterGrille}
+          <Text style={styles.buttonText}>Générer Grilles</Text>
+        </TouchableOpacity>
+
+        {/* Boutons pour les grilles (si au moins une grille est ajoutée) */}
+        {grilles.length > 0 && (
+          <View style={styles.buttonsRow}>
+            <TouchableOpacity
+              style={styles.grillesButton}
+              onPress={() => setGrillesModalVisible(true)}
+            >
+              <Text style={styles.buttonText}>({grilles.length})</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
+              <FontAwesome name="refresh" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Dépôt du solde */}
+        <View style={styles.inputSection}>
+          <Text style={styles.sectionTitle}>Déposer Solde:</Text>
+          <View style={styles.depotRow}>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={depot}
+              onChangeText={(text) => setDepot(text.replace(/[^0-9.]/g, ''))}
+              placeholder="Montant"
+              placeholderTextColor="#AAAAAA"
             />
+            <TouchableOpacity style={styles.depotButton} onPress={deposerSolde}>
+              <Text style={styles.buttonText}>€</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={jouer} disabled={isAnimating}>
-                <Text style={styles.buttonText}>Jouer</Text>
-              </TouchableOpacity>
+        <EuroSoldeDisplay solde={solde} />
 
-              <TouchableOpacity style={styles.button} onPress={() => setGrillesModalVisible(true)}>
-                <Text style={styles.buttonText}>Grilles Jouées</Text>
-              </TouchableOpacity>
+        {isAnimating ? (
+          <EuroAnimation circleAnimations={circleAnimations} isAnimating={isAnimating} />
+        ) : (
+          <TouchableOpacity style={styles.playButton} onPress={jouer} disabled={isAnimating}>
+            <Text style={styles.buttonText}>Jouer</Text>
+          </TouchableOpacity>
+        )}
 
-              <TouchableOpacity style={styles.button} onPress={reinitialiserGrilles}>
-                <Text style={styles.buttonText}>Réinitialiser Grilles</Text>
-              </TouchableOpacity>
+        {/* Modals */}
+        <EuroGrillesModal
+          grillesModalVisible={grillesModalVisible}
+          setGrillesModalVisible={setGrillesModalVisible}
+          grilles={grilles}
+        />
 
-              <TouchableOpacity style={styles.button} onPress={deposerSolde}>
-                <Text style={styles.buttonText}>Déposer Solde</Text>
-              </TouchableOpacity>
+        <EuroGenererModal
+          modalGenererVisible={modalGenererVisible}
+          setModalGenererVisible={setModalGenererVisible}
+          nombreGrillesAGenerer={nombreGrillesAGenerer}
+          setNombreGrillesAGenerer={setNombreGrillesAGenerer}
+          etoilePlus={etoilePlus}
+          setEtoilePlus={setEtoilePlus}
+          genererGrillesAleatoires={genererGrillesAleatoires}
+        />
 
-              <TouchableOpacity style={styles.button} onPress={() => setModalGenererVisible(true)}>
-                <Text style={styles.buttonText}>Générer Grilles</Text>
-              </TouchableOpacity>
-            </View>
+        <EuroResultModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          resultatsGrilles={resultatsGrilles}
+          gainDernierTour={gainDernierTour}
+          totalGains={totalGains}
+          meilleurGain={meilleurGain}
+          totalDepense={totalDepense}
+          nombreTours={nombreTours}
+          numerosTirage={numerosTirage}
+          etoilesTirage={etoilesTirage}
+        />
 
-            <EuroAnimation circleAnimations={circleAnimations} isAnimating={isAnimating} />
-
-            <EuroGrillesModal
-              grillesModalVisible={grillesModalVisible}
-              setGrillesModalVisible={setGrillesModalVisible}
-              grilles={grilles}
-            />
-
-            <EuroGenererModal
-              modalGenererVisible={modalGenererVisible}
-              setModalGenererVisible={setModalGenererVisible}
-              nombreGrillesAGenerer={nombreGrillesAGenerer}
-              setNombreGrillesAGenerer={setNombreGrillesAGenerer}
-              etoilePlus={etoilePlus}
-              setEtoilePlus={setEtoilePlus}
-              genererGrillesAleatoires={genererGrillesAleatoires}
-            />
-
-            <EuroResultModal
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
-              resultatsGrilles={resultatsGrilles}
-              gainDernierTour={gainDernierTour}
-              totalGains={totalGains}
-              meilleurGain={meilleurGain}
-              totalDepense={totalDepense}
-              nombreTours={nombreTours}
-              numerosTirage={numerosTirage}
-              etoilesTirage={etoilesTirage}
-            />
-            <EuroInfoModal  // Ajout de la modal d'info du jeu
-              modalInfoVisible={modalInfoVisible}
-              setModalInfoVisible={setModalInfoVisible}
-            />
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    </View>
+        <EuroInfoModal
+          modalInfoVisible={modalInfoVisible}
+          setModalInfoVisible={setModalInfoVisible}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </TouchableWithoutFeedback>
+</View>
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: '#2C77AF',
   },
   container: {
-    marginTop: 50,
+    marginTop: 30,
     flex: 1,
   },
   content: {
@@ -405,23 +445,94 @@ const styles = {
     paddingVertical: 10,
     flexGrow: 1,
   },
-  buttonContainer: {
-    marginVertical: 20,
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#0055A4',
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 5,
+  buttonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%',
     marginVertical: 10,
+  },
+  grillesButton: {
+    backgroundColor: '#0055A4',
+    flex: 1,
+    marginRight: 5,
+    height: 45,
+    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 5,
+  },
+  resetButton: {
+    backgroundColor: '#FFC107',
+    flex: 1,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
   },
-};
+  genererButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginTop: 10,
+    width: '60%',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  depotRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '60%',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    padding: 8,
+    width: 150,
+    textAlign: 'center',
+    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+  },
+  depotButton: {
+    backgroundColor: '#FFC107',
+    paddingVertical: 8,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    alignItems: 'center',
+    height: 45,
+    justifyContent: 'center',
+  },
+  soldeSectionMain: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  soldeText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginBottom: 2,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
+  playButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: '60%',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default EuroScreen;
