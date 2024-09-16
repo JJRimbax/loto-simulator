@@ -53,16 +53,6 @@ const EuroInputSection = ({ numerosInput, etoilesInput, flashNumeros, flashEtoil
         </View>
       </View>
 
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Option Étoile + (Augmente les gains de 12%)</Text>
-        <Switch
-          value={etoilePlus}
-          onValueChange={setEtoilePlus}
-          trackColor={{ false: '#767577', true: '#FBC02D' }}
-          thumbColor={etoilePlus ? '#FFEB3B' : '#f4f3f4'}
-        />
-      </View>
-
       <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
         <Text style={styles.buttonText}>Ajouter Grille</Text>
       </TouchableOpacity>

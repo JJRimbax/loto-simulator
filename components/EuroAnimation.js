@@ -1,22 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react-native';
 
 const EuroAnimation = ({ circleAnimations, isAnimating }) => {
+  const [randomNumbers, setRandomNumbers] = useState(Array(7).fill(0)); 
+
+  useEffect(() => {
+    if (!isAnimating) return;
+
+    const intervalIds = [];
+
+
+    circleAnimations.forEach((anim, index) => {
+      const maxNumber = index < 5 ? 50 : 12; 
+
+      const intervalId = setInterval(() => {
+        const newRandomNumber = Math.floor(Math.random() * maxNumber) + 1;
+        setRandomNumbers((prevNumbers) => {
+          const newNumbers = [...prevNumbers];
+          newNumbers[index] = newRandomNumber;
+          return newNumbers;
+        });
+      }, 100); 
+
+      intervalIds.push(intervalId);
+    });
+
+    return () => {
+      intervalIds.forEach(clearInterval);
+    };
+  }, [circleAnimations, isAnimating]);
+
   if (!isAnimating) return null;
 
   return (
     <View style={styles.animationContainer}>
-      <Text style={styles.animationText}>Tirage en cours...</Text>
       <View style={styles.animationCirclesContainer}>
         {circleAnimations.map((anim, index) => (
           <Animated.View
             key={index}
             style={[
               styles.animationCircle,
-              index === 6 ? styles.etoileBallTirage : null,
+              index >= 5 ? styles.etoileBallTirage : null, 
               { opacity: anim },
             ]}
-          />
+          >
+            <Text style={styles.numberText}>{randomNumbers[index]}</Text>
+          </Animated.View>
         ))}
       </View>
     </View>
@@ -28,14 +57,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: 'center',
   },
-  animationText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 10,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
   animationCirclesContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -43,14 +64,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   animationCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#0055A4',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#0055A4', 
     margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   etoileBallTirage: {
-    backgroundColor: '#FFC107',
+    backgroundColor: '#FFC107', 
+  },
+  numberText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

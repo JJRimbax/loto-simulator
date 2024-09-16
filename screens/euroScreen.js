@@ -442,14 +442,14 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: -10,
     flexGrow: 1,
   },
   buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '60%',
-    marginVertical: 10,
+    marginVertical: 5, 
   },
   grillesButton: {
     backgroundColor: '#0055A4',
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginTop: 10,
+    marginTop: 5, 
     width: '60%',
     height: 45,
     alignItems: 'center',
@@ -527,12 +527,24 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginVertical: 10,
+    marginVertical: 5, 
     width: '60%',
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF', 
+    textAlign: 'center', 
+    marginBottom: 8, 
+    textShadowColor: '#000000', 
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+  },
 });
+
+
 
 export default EuroScreen;
