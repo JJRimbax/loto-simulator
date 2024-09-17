@@ -97,25 +97,29 @@ const EuroScreen = () => {
     try {
       const numerosUtilisateur = [...new Set(numerosInput.map(num => parseInt(num)))];
       const etoilesUtilisateur = [...new Set(etoilesInput.map(num => parseInt(num)))];
-
+  
       if (
         numerosUtilisateur.length !== 5 ||
         numerosUtilisateur.some(num => isNaN(num) || num < 1 || num > 50)
       ) {
         throw new Error('Veuillez entrer 5 numéros uniques entre 1 et 50.');
       }
-
+  
       if (
         etoilesUtilisateur.length !== 2 ||
         etoilesUtilisateur.some(num => isNaN(num) || num < 1 || num > 12)
       ) {
         throw new Error('Veuillez entrer 2 étoiles entre 1 et 12.');
       }
+  
 
+      const grille = { numeros: numerosUtilisateur, etoiles: etoilesUtilisateur, etoilePlus };
+  
       setGrilles((prevGrilles) => [
         ...prevGrilles,
-        { numeros: numerosUtilisateur, etoiles: etoilesUtilisateur, etoilePlus }
+        grille
       ]);
+  
 
       setNumerosInput(['', '', '', '', '']);
       setEtoilesInput(['', '']);
@@ -124,6 +128,7 @@ const EuroScreen = () => {
       Alert.alert('Erreur', error.message);
     }
   };
+  
 
   const genererGrillesAleatoires = () => {
     try {

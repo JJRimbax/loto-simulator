@@ -20,6 +20,13 @@ const EuroInfoModal = ({ modalInfoVisible, setModalInfoVisible }) => {
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.modalTitle}>Informations du Jeu EuroMillions</Text>
 
+            {/* Prix de la grille et option Étoile Plus */}
+            <Text style={styles.modalText}>
+              <Text style={styles.boldText}>Prix d'une grille :</Text> 2,50€
+              {'\n'}
+              <Text style={styles.boldText}>Option Étoile Plus :</Text> +1€
+            </Text>
+
             <Text style={styles.modalSubtitle}>Grille de Gains :</Text>
 
             {/* Jackpot */}
