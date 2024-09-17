@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   infoButton: {
     position: "absolute",
-    top: 60,
+    top: 50,
     right: 20,
   },
   mainLogo: {

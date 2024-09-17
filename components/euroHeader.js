@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   backButton: {
     position: 'absolute',
-    top: 10,
+    top: 15,
     left: 10,
   },
   infoButton: {
     position: 'absolute',
-    top: 10,
+    top: 15,
     right: 10,
   },
   logo: {

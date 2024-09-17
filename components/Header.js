@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   backButton: {
     position: 'absolute',

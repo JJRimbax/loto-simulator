@@ -11,10 +11,10 @@ import {
   Keyboard,
   ScrollView,
   TextInput,
-  Text
+  Text,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; 
-
+import LotoHistoriqueModal from '../components/LotoHistoriqueModal';
 import Header from '../components/Header';
 import JackpotDisplay from '../components/JackpotDisplay';
 import NumberInput from '../components/NumberInput';
@@ -99,6 +99,8 @@ export default function LotoScreen() {
   const [secondTirageGenerer, setSecondTirageGenerer] = useState(false);
   const [modalInfoVisible, setModalInfoVisible] = useState(false);
   const [gainDernierTour, setGainDernierTour] = useState(0);
+  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false); 
+  const [historiqueLoto, setHistoriqueLoto] = useState([]); 
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -127,6 +129,14 @@ export default function LotoScreen() {
       ])
     ).start();
   }, []);
+
+  const toggleSecondTirage = (index) => {
+    setGrilles((prevGrilles) => {
+      const newGrilles = [...prevGrilles];
+      newGrilles[index].secondTirage = !newGrilles[index].secondTirage;
+      return newGrilles;
+    });
+  };
 
   const lancerAnimationTirage = (callback) => {
     setIsAnimating(true);
@@ -235,6 +245,11 @@ export default function LotoScreen() {
       setNumeroChanceTirage(numeroChanceTire);
       setNumerosSecondTirage(numerosSecondTires);
 
+      setHistoriqueLoto((prevHistorique) => [
+        ...prevHistorique,
+        { numerosTires, numeroChanceTire }
+      ]);
+
       let gainTotalTour = 0;
       let newMeilleurGain = meilleurGain;
       let jackpotGagne = false;
@@ -321,14 +336,6 @@ export default function LotoScreen() {
         },
       ]
     );
-  };
-
-  const toggleSecondTirage = (index) => {
-    setGrilles((prevGrilles) => {
-      const newGrilles = [...prevGrilles];
-      newGrilles[index].secondTirage = !newGrilles[index].secondTirage;
-      return newGrilles;
-    });
   };
 
   const flashNumeros = () => {
@@ -423,6 +430,14 @@ export default function LotoScreen() {
                 <Text style={styles.buttonText}>Jouer</Text>
               </TouchableOpacity>
             )}
+
+            {/* Icone pour ouvrir la modal historique */}
+            <TouchableOpacity
+              style={styles.historiqueButton}
+              onPress={() => setHistoriqueModalVisible(true)}
+            >
+              <FontAwesome name="book" size={30} color="#FFFFFF" />
+            </TouchableOpacity>
           </ScrollView>
 
           <InfoModal
@@ -444,7 +459,7 @@ export default function LotoScreen() {
             visible={grillesModalVisible}
             onClose={() => setGrillesModalVisible(false)}
             grilles={grilles}
-            toggleSecondTirage={toggleSecondTirage}
+            toggleSecondTirage={toggleSecondTirage} // Correction
           />
 
           <ResultsModal
@@ -460,6 +475,13 @@ export default function LotoScreen() {
             numeroChanceTirage={numeroChanceTirage}
             numerosSecondTirage={numerosSecondTirage}
             resultatsGrilles={resultatsGrilles}
+          />
+
+          {/* Modal Historique */}
+          <LotoHistoriqueModal
+            modalVisible={historiqueModalVisible}
+            setModalVisible={setHistoriqueModalVisible}
+            historiqueLoto={historiqueLoto}
           />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -587,24 +609,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  soldeSectionMain: {
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  soldeText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 2,
-    textShadowColor: '#000000',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
-  gainsTextHighlight: {
-    fontSize: 16,
-    color: '#28a745',
-    marginVertical: 2,
-    fontWeight: 'bold',
+  historiqueButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#0055A4',
+    padding: 10,
+    borderRadius: 50,
   },
 });
-
-
