@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
@@ -7,20 +7,34 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenue</Text>
+      <Image
+        source={require('../assets/logo.png')}  // Ajout du logo ici
+        style={styles.mainLogo}
+        resizeMode="contain"
+      />
+      
+      <Text style={styles.title}>Choisissez un jeu :</Text>
 
       <TouchableOpacity
         style={styles.lotoButton}
         onPress={() => navigation.navigate('LotoScreen')}
       >
-        <Text style={styles.buttonText}>LOTO</Text>
+        <Image
+          source={require('../assets/Nouveau_logo_loto.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.euroButton}
-        onPress={() => navigation.navigate('EuroScreen')} // Ajout de la navigation vers EuroScreen
+        onPress={() => navigation.navigate('EuroScreen')}
       >
-        <Text style={styles.buttonText}>EURO MILLION</Text>
+        <Image
+          source={require('../assets/Euromillions.png')}
+          style={styles.euroLogo}
+          resizeMode="contain"
+        />
       </TouchableOpacity>
     </View>
   );
@@ -34,6 +48,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  mainLogo: {  
+    width: 350,
+    height: 350,
+    marginBottom: 20, 
+  },
   title: {
     fontSize: 24,
     color: '#FFFFFF',
@@ -43,8 +62,8 @@ const styles = StyleSheet.create({
   },
   lotoButton: {
     backgroundColor: '#0055A4',
+    width: '80%',  
     paddingVertical: 15,
-    paddingHorizontal: 50,
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -52,16 +71,19 @@ const styles = StyleSheet.create({
   },
   euroButton: {
     backgroundColor: '#0055A4',
+    width: '80%',  
     paddingVertical: 15,
-    paddingHorizontal: 50,
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+  logo: {
+    width: 200,
+    height: 80,
+  },
+  euroLogo: {
+    width: 230,  
+    height: 90,
   },
 });
 

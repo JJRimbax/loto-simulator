@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   },
   soldeSectionMain: {
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 100,
   },
   soldeText: {
     fontSize: 16,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginVertical: 5, 
+    marginVertical: 15, 
     width: '60%',
     height: 45,
     alignItems: 'center',
