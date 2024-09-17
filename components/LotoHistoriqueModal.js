@@ -19,13 +19,28 @@ const LotoHistoriqueModal = ({ modalVisible, setModalVisible, historiqueLoto }) 
           </TouchableOpacity>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.modalTitle}>Historique des Tirages Loto</Text>
-            {historiqueLoto.map((tirage, index) => (
-              <View key={index} style={styles.tirageContainer}>
-                <Text style={styles.tirageText}>Tirage {index + 1}</Text>
-                <Text style={styles.tirageText}>Numéros : {tirage.numerosTires.join(', ')}</Text>
-                <Text style={styles.tirageText}>Numéro Chance : {tirage.numeroChanceTire}</Text>
-              </View>
-            ))}
+            {historiqueLoto && historiqueLoto.length > 0 ? (
+              historiqueLoto.map((tirage, index) => (
+                <View key={index} style={styles.tirageContainer}>
+                  <Text style={styles.tirageTitle}>Tirage {index + 1}</Text>
+                  <View style={styles.numerosRow}>
+                    {tirage.numerosTires.map((num, idx) => (
+                      <View key={idx} style={styles.numeroBall}>
+                        <Text style={styles.numeroText}>{num}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <View style={styles.chanceRow}>
+                    <Text style={styles.chanceLabel}>Numéro Chance : </Text>
+                    <View style={styles.chanceBall}>
+                      <Text style={styles.numeroText}>{tirage.numeroChanceTire}</Text>
+                    </View>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noDataText}>Aucun historique disponible</Text>
+            )}
           </ScrollView>
         </View>
       </View>
@@ -70,8 +85,53 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#E0E0E0',
   },
-  tirageText: {
+  tirageTitle: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  numerosRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
+  numeroBall: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#0055A4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  chanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  chanceLabel: {
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  chanceBall: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#E50000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5,
+  },
+  numeroText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noDataText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#555',
+    marginTop: 20,
   },
 });
 

@@ -25,6 +25,7 @@ import InfoModal from '../components/InfoModal';
 import GenerateGrillesModal from '../components/GenerateGrillesModal';
 import GrillesModal from '../components/GrillesModal';
 import ResultsModal from '../components/ResultsModal';
+import LottieView from 'lottie-react-native'; 
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -356,6 +357,12 @@ export default function LotoScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScrollView contentContainerStyle={styles.content}>
+          <LottieView
+        source={require('../assets/stars.json')} 
+        autoPlay
+        loop
+        style={styles.lottieBackground} 
+      />
             <Header onInfoPress={() => setModalInfoVisible(true)} />
             <JackpotDisplay jackpot={jackpot} jackpotAnimation={jackpotAnimation} />
 
@@ -544,6 +551,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
+  },
+  lottieBackground: {
+    position: 'absolute',
+    width: 800,
+    height: 800,
+    top: '5%',
   },
   depotRow: {
     flexDirection: 'row',

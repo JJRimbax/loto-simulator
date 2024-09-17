@@ -9,7 +9,8 @@ import {
   Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { FontAwesome } from "@expo/vector-icons"; 
+import { FontAwesome } from "@expo/vector-icons";
+import LottieView from 'lottie-react-native'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -35,13 +36,19 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Bouton d'information en haut à droite */}
       <TouchableOpacity
         style={styles.infoButton}
         onPress={() => setModalVisible(true)} 
       >
         <FontAwesome name="info-circle" size={28} color="#FFFFFF" />
       </TouchableOpacity>
+
+      <LottieView
+        source={require('../assets/stars.json')} 
+        autoPlay
+        loop
+        style={styles.lottieBackground} 
+      />
 
       {/* Logo animé */}
       <Animated.Image
@@ -118,6 +125,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     right: 20,
+  },
+  lottieBackground: {
+    position: 'absolute',
+    width: 400,
+    height: 400,
+    top: '20%',
   },
   mainLogo: {
     width: 350,

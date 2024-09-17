@@ -24,9 +24,21 @@ const EuroMillionsHistoriqueModal = ({ modalVisible, setModalVisible, historique
             {historiqueEuroMillions && historiqueEuroMillions.length > 0 ? (
               historiqueEuroMillions.map((tirage, index) => (
                 <View key={index} style={styles.tirageContainer}>
-                  <Text style={styles.tirageText}>Tirage {index + 1}</Text>
-                  <Text style={styles.tirageText}>Numéros : {tirage.numerosTires.join(', ')}</Text>
-                  <Text style={styles.tirageText}>Étoiles : {tirage.etoilesTires.join(', ')}</Text>
+                  <Text style={styles.tirageTitle}>Tirage {index + 1}</Text>
+                  <View style={styles.numerosRow}>
+                    {tirage.numerosTires.map((num, idx) => (
+                      <View key={idx} style={styles.numeroBall}>
+                        <Text style={styles.numeroText}>{num}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <View style={styles.etoilesRow}>
+                    {tirage.etoilesTires.map((etoile, idx) => (
+                      <View key={idx} style={styles.etoileBall}>
+                        <Text style={styles.numeroText}>{etoile}</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               ))
             ) : (
@@ -76,8 +88,41 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#E0E0E0',
   },
-  tirageText: {
+  tirageTitle: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  numerosRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
+  etoilesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  numeroBall: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#0055A4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  etoileBall: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#FFC107',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  numeroText: {
+    color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   noDataText: {
     fontSize: 16,

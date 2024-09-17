@@ -24,6 +24,7 @@ import EuroGrillesModal from "../components/EuroGrillesModal";
 import EuroGenererModal from "../components/EuroGenererModal";
 import EuroInfoModal from "../components/EuroInfoModal";
 import EuroMillionsHistoriqueModal from "../components/EuroMillionsHistoriqueModal";
+import LottieView from 'lottie-react-native'; 
 
 const EuroScreen = () => {
   const [numerosInput, setNumerosInput] = useState(["", "", "", "", ""]);
@@ -355,6 +356,12 @@ const EuroScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <ScrollView contentContainerStyle={styles.content}>
+          <LottieView
+        source={require('../assets/stars.json')} 
+        autoPlay
+        loop
+        style={styles.lottieBackground} 
+      />
             {/* Header */}
             <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
 
@@ -553,6 +560,12 @@ const styles = StyleSheet.create({
     height: 45,
     alignItems: "center",
     justifyContent: "center",
+  },
+  lottieBackground: {
+    position: 'absolute',
+    width: 800,
+    height: 800,
+    top: '5%',
   },
   depotRow: {
     flexDirection: "row",

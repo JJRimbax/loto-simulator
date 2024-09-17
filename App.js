@@ -15,17 +15,17 @@ export default function App() {
         <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
-          options={{ headerShown: false }} // Supprime le bandeau en haut
+          options={{ headerShown: false }} 
         />
         <Stack.Screen
           name="LotoScreen"
           component={LotoScreen}
-          options={{ headerShown: false }} // Supprime le bandeau en haut
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="EuroScreen"
           component={EuroScreen}
-          options={{ headerShown: false }} // Supprime le bandeau en haut
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
