@@ -10,12 +10,15 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
-import LottieView from 'lottie-react-native'; 
+import LottieView from 'lottie-react-native';
+import { LinearGradient } from 'expo-linear-gradient'; // Importer LinearGradient
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const logoAnimation = useRef(new Animated.Value(1)).current;
-  const [modalVisible, setModalVisible] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
     Animated.loop(
@@ -34,20 +37,30 @@ const HomeScreen = () => {
     ).start();
   }, [logoAnimation]);
 
+  const handleGamePress = (screenName) => {
+    setAnimating(true);  
+    setTimeout(() => {
+      navigation.navigate(screenName); 
+      setAnimating(false);
+    }, 1000); 
+  };
+
   return (
     <View style={styles.container}>
+      {/* Bouton d'information */}
       <TouchableOpacity
         style={styles.infoButton}
-        onPress={() => setModalVisible(true)} 
+        onPress={() => setModalVisible(true)}
       >
         <FontAwesome name="info-circle" size={28} color="#FFFFFF" />
       </TouchableOpacity>
 
+      {/* Animation Lottie en arrière-plan */}
       <LottieView
-        source={require('../assets/stars.json')} 
+        source={require('../assets/stars.json')}
         autoPlay
         loop
-        style={styles.lottieBackground} 
+        style={styles.lottieBackground}
       />
 
       {/* Logo animé */}
@@ -59,26 +72,44 @@ const HomeScreen = () => {
 
       <Text style={styles.title}>Choisissez un jeu :</Text>
 
+      {/* Loto button avec dégradé */}
       <TouchableOpacity
-        style={styles.lotoButton}
-        onPress={() => navigation.navigate("LotoScreen")}
+        style={styles.buttonContainer}
+        onPress={() => handleGamePress("LotoScreen")}
+        disabled={animating}  
       >
-        <Image
-          source={require("../assets/Nouveau_logo_loto.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <LinearGradient
+          colors={['#3A73C2', '#4D9CEB', '#0055A4']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientButton}
+        >
+          <Image
+            source={require("../assets/Nouveau_logo_loto.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </LinearGradient>
       </TouchableOpacity>
 
+      {/* EuroMillions button avec dégradé */}
       <TouchableOpacity
-        style={styles.euroButton}
-        onPress={() => navigation.navigate("EuroScreen")}
+        style={styles.buttonContainer}
+        onPress={() => handleGamePress("EuroScreen")}
+        disabled={animating}  
       >
-        <Image
-          source={require("../assets/Euromillions.png")}
-          style={styles.euroLogo}
-          resizeMode="contain"
-        />
+        <LinearGradient
+          colors={['#3A73C2', '#4D9CEB', '#0055A4']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientButton}
+        >
+          <Image
+            source={require("../assets/Euromillions.png")}
+            style={styles.euroLogo}
+            resizeMode="contain"
+          />
+        </LinearGradient>
       </TouchableOpacity>
 
       {/* Modal pour les informations */}
@@ -86,7 +117,7 @@ const HomeScreen = () => {
         transparent={true}
         visible={modalVisible}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)} 
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -125,17 +156,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     right: 20,
+    zIndex: 2,  
   },
   lottieBackground: {
-    position: 'absolute',
-    width: 400,
-    height: 400,
-    top: '20%',
+    position: "absolute",
+    width: 600,
+    height: 600,
+    top: "-5%",
   },
   mainLogo: {
     width: 350,
     height: 350,
     marginBottom: 20,
+    zIndex: 1, 
   },
   title: {
     fontSize: 24,
@@ -143,23 +176,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    zIndex: 2,
   },
-  lotoButton: {
-    backgroundColor: "#0055A4",
+  buttonContainer: {
     width: "80%",
-    paddingVertical: 15,
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 20,
+    overflow: 'hidden',
   },
-  euroButton: {
-    backgroundColor: "#0055A4",
-    width: "80%",
+  gradientButton: {
+    width: "100%",
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8.3,
+    elevation: 20,
   },
   logo: {
     width: 200,
