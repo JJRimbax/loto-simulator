@@ -26,9 +26,17 @@ import EuroInfoModal from "../components/EuroInfoModal";
 import EuroMillionsHistoriqueModal from "../components/EuroMillionsHistoriqueModal";
 import LottieView from 'lottie-react-native'; 
 
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+const getRandomUniqueNumbers = (count, min, max) => {
+  const numbers = new Set();
+  while (numbers.size < count) {
+    numbers.add(getRandomNumber(min, max));
+  }
+  return Array.from(numbers);
+};
+
 const EuroScreen = () => {
-  const [numerosInput, setNumerosInput] = useState(["", "", "", "", ""]);
-  const [etoilesInput, setEtoilesInput] = useState(["", ""]);
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState("");
@@ -48,8 +56,9 @@ const EuroScreen = () => {
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState("");
   const [modalInfoVisible, setModalInfoVisible] = useState(false);
   const [gainDernierTour, setGainDernierTour] = useState(0);
-  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false); // État pour la modal d'historique
-  const [historiqueEuro, setHistoriqueEuro] = useState([]); // Historique des tirages
+  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false); 
+  const [historiqueEuro, setHistoriqueEuro] = useState([]); 
+  const [ajouterModalVisible, setAjouterModalVisible] = useState(false); 
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -80,64 +89,15 @@ const EuroScreen = () => {
     ).start();
   }, []);
 
-  const flashNumeros = () => {
-    setNumerosInput(
-      getRandomUniqueNumbers(5, 1, 50).map((num) => num.toString())
-    );
-  };
-
-  const flashEtoiles = () => {
-    setEtoilesInput(
-      getRandomUniqueNumbers(2, 1, 12).map((num) => num.toString())
-    );
-  };
-
-  const getRandomUniqueNumbers = (count, min, max) => {
-    const numbers = new Set();
-    while (numbers.size < count) {
-      numbers.add(Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-    return Array.from(numbers);
-  };
-
-  const ajouterGrille = () => {
-    try {
-      const numerosUtilisateur = [
-        ...new Set(numerosInput.map((num) => parseInt(num))),
-      ];
-      const etoilesUtilisateur = [
-        ...new Set(etoilesInput.map((num) => parseInt(num))),
-      ];
-
-      if (
-        numerosUtilisateur.length !== 5 ||
-        numerosUtilisateur.some((num) => isNaN(num) || num < 1 || num > 50)
-      ) {
-        throw new Error("Veuillez entrer 5 numéros uniques entre 1 et 50.");
-      }
-
-      if (
-        etoilesUtilisateur.length !== 2 ||
-        etoilesUtilisateur.some((num) => isNaN(num) || num < 1 || num > 12)
-      ) {
-        throw new Error("Veuillez entrer 2 étoiles entre 1 et 12.");
-      }
-
-      setGrilles((prevGrilles) => [
-        ...prevGrilles,
-        {
-          numeros: numerosUtilisateur,
-          etoiles: etoilesUtilisateur,
-          etoilePlus,
-        },
-      ]);
-
-      setNumerosInput(["", "", "", "", ""]);
-      setEtoilesInput(["", ""]);
-      setEtoilePlus(false);
-    } catch (error) {
-      Alert.alert("Erreur", error.message);
-    }
+  const ajouterGrille = (numeros, etoiles) => {
+    setGrilles((prevGrilles) => [
+      ...prevGrilles,
+      {
+        numeros,
+        etoiles,
+        etoilePlus,
+      },
+    ]);
   };
 
   const genererGrillesAleatoires = () => {
@@ -356,12 +316,12 @@ const EuroScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <ScrollView contentContainerStyle={styles.content}>
-          <LottieView
-        source={require('../assets/stars.json')} 
-        autoPlay
-        loop
-        style={styles.lottieBackground} 
-      />
+            <LottieView
+              source={require('../assets/stars.json')} 
+              autoPlay
+              loop
+              style={styles.lottieBackground} 
+            />
             {/* Header */}
             <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
 
@@ -371,18 +331,13 @@ const EuroScreen = () => {
               jackpot={jackpot}
             />
 
-            {/* Section de création de grilles */}
-            <EuroInputSection
-              numerosInput={numerosInput}
-              etoilesInput={etoilesInput}
-              flashNumeros={flashNumeros}
-              flashEtoiles={flashEtoiles}
-              setNumerosInput={setNumerosInput}
-              setEtoilesInput={setEtoilesInput}
-              etoilePlus={etoilePlus}
-              setEtoilePlus={setEtoilePlus}
-              ajouterGrille={ajouterGrille}
-            />
+            {/* Bouton pour ajouter une grille */}
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setAjouterModalVisible(true)}
+            >
+              <Text style={styles.buttonText}>Ajouter Grille</Text>
+            </TouchableOpacity>
 
             {/* Bouton pour générer des grilles */}
             <TouchableOpacity
@@ -461,6 +416,12 @@ const EuroScreen = () => {
           </ScrollView>
 
           {/* Modals */}
+          <EuroInputSection
+            visible={ajouterModalVisible}
+            onClose={() => setAjouterModalVisible(false)}
+            onAddGrille={ajouterGrille}
+          />
+
           <EuroGrillesModal
             grillesModalVisible={grillesModalVisible}
             setGrillesModalVisible={setGrillesModalVisible}
@@ -549,6 +510,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
+  },
+  addButton: {
+    backgroundColor: "#0055A4",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: "60%",
+    alignItems: "center",
   },
   genererButton: {
     backgroundColor: "#0055A4",

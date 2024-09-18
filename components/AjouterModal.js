@@ -20,9 +20,9 @@ const getRandomUniqueNumbers = (count, min, max) => {
   return Array.from(numbers);
 };
 
-const EuroInputSection  = ({ visible, onClose, onAddGrille }) => {
+const AjouterModal = ({ visible, onClose, onAddGrille }) => {
   const [selectedNumbers, setSelectedNumbers] = useState([]);
-  const [selectedStars, setSelectedStars] = useState([]);
+  const [selectedChanceNumber, setSelectedChanceNumber] = useState(null);
 
   const toggleNumber = (num) => {
     if (selectedNumbers.includes(num)) {
@@ -34,29 +34,23 @@ const EuroInputSection  = ({ visible, onClose, onAddGrille }) => {
     }
   };
 
-  const toggleStar = (num) => {
-    if (selectedStars.includes(num)) {
-      setSelectedStars(selectedStars.filter(s => s !== num));
-    } else if (selectedStars.length < 2) {
-      setSelectedStars([...selectedStars, num]);
-    } else {
-      Alert.alert('Erreur', 'Vous ne pouvez sélectionner que 2 étoiles.');
-    }
+  const selectChanceNumber = (num) => {
+    setSelectedChanceNumber(num);
   };
 
   const generateRandomGrille = () => {
-    const randomNumbers = getRandomUniqueNumbers(5, 1, 50);
-    const randomStars = getRandomUniqueNumbers(2, 1, 12);
+    const randomNumbers = getRandomUniqueNumbers(5, 1, 49);
+    const randomChanceNumber = getRandomNumber(1, 10);
     setSelectedNumbers(randomNumbers);
-    setSelectedStars(randomStars);
+    setSelectedChanceNumber(randomChanceNumber);
   };
 
   const handleAddGrille = () => {
-    if (selectedNumbers.length === 5 && selectedStars.length === 2) {
-      onAddGrille(selectedNumbers, selectedStars);
+    if (selectedNumbers.length === 5 && selectedChanceNumber) {
+      onAddGrille(selectedNumbers, selectedChanceNumber);
       onClose();
     } else {
-      Alert.alert('Erreur', 'Veuillez sélectionner 5 numéros et 2 étoiles.');
+      Alert.alert('Erreur', 'Veuillez sélectionner 5 numéros et 1 numéro chance.');
     }
   };
 
@@ -70,7 +64,7 @@ const EuroInputSection  = ({ visible, onClose, onAddGrille }) => {
           <Text style={styles.modalTitle}>Sélectionnez vos numéros</Text>
 
           <ScrollView contentContainerStyle={styles.grid}>
-            {[...Array(50).keys()].map(i => {
+            {[...Array(49).keys()].map(i => {
               const num = i + 1;
               const isSelected = selectedNumbers.includes(num);
               return (
@@ -87,16 +81,16 @@ const EuroInputSection  = ({ visible, onClose, onAddGrille }) => {
             })}
           </ScrollView>
 
-          <Text style={styles.modalTitle}>Sélectionnez vos étoiles</Text>
-          <View style={styles.starGrid}>
-            {[...Array(12).keys()].map(i => {
+          <Text style={styles.modalTitle}>Numéro Chance</Text>
+          <View style={styles.chanceGrid}>
+            {[...Array(10).keys()].map(i => {
               const num = i + 1;
-              const isSelected = selectedStars.includes(num);
+              const isSelected = selectedChanceNumber === num;
               return (
                 <TouchableOpacity
                   key={num}
-                  style={[styles.numberCircle, styles.starCircle, isSelected && styles.selectedStar]}
-                  onPress={() => toggleStar(num)}
+                  style={[styles.numberCircle, styles.chanceCircle, isSelected && styles.selectedChanceNumber]}
+                  onPress={() => selectChanceNumber(num)}
                 >
                   <Text style={[styles.numberText, isSelected && styles.selectedNumberText]}>
                     {num}
@@ -154,7 +148,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   numberCircle: {
-    width: 35,
+    width: 35, // Réduction de la taille des numéros pour un meilleur affichage
     height: 35,
     borderRadius: 17.5,
     backgroundColor: '#ddd',
@@ -162,32 +156,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 5,
   },
-  starCircle: {
+  chanceCircle: {
     backgroundColor: '#ddd',
   },
   selectedNumber: {
     backgroundColor: '#0055A4',
   },
-  selectedStar: {
-    backgroundColor: '#FFD700', 
+  selectedChanceNumber: {
+    backgroundColor: '#E50000',
   },
   numberText: {
     color: '#000',
-    fontSize: 14,
+    fontSize: 14, // Réduction de la taille du texte
     fontWeight: 'bold',
   },
   selectedNumberText: {
-    color: '#fff',
+    color: '#fff', // Le texte des numéros sélectionnés devient blanc
   },
-  starGrid: {
+  chanceGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     marginVertical: 10,
   },
   flashButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'row', // Alignement de l'icône et du texte
+    alignItems: 'center', // Centrage de l'icône avec le texte
     backgroundColor: '#0055A4',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -195,7 +189,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   flashIcon: {
-    marginRight: 5,
+    marginRight: 5, // Espacement entre l'icône et le texte
   },
   flashButtonText: {
     color: '#fff',
@@ -203,7 +197,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: '#FFD700', 
+    backgroundColor: '#E50000',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -216,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EuroInputSection;
+export default AjouterModal;

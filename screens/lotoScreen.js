@@ -10,22 +10,21 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
-  TextInput,
   Text,
+  TextInput,
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 import LotoHistoriqueModal from '../components/LotoHistoriqueModal';
 import Header from '../components/Header';
 import JackpotDisplay from '../components/JackpotDisplay';
-import NumberInput from '../components/NumberInput';
-import ChanceNumberInput from '../components/ChanceNumberInput';
+import AjouterModal from '../components/AjouterModal';
 import BalanceDisplay from '../components/BalanceDisplay';
 import AnimatedCircles from '../components/AnimatedCircles';
 import InfoModal from '../components/InfoModal';
 import GenerateGrillesModal from '../components/GenerateGrillesModal';
 import GrillesModal from '../components/GrillesModal';
 import ResultsModal from '../components/ResultsModal';
-import LottieView from 'lottie-react-native'; 
+import LottieView from 'lottie-react-native';
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -39,6 +38,7 @@ const getRandomUniqueNumbers = (count, min, max) => {
   return Array.from(numbers);
 };
 
+// Fonction calculerGains manquante
 const calculerGains = (
   numerosJoueur,
   numeroChanceJoueur,
@@ -78,8 +78,6 @@ const calculerGains = (
 };
 
 export default function LotoScreen() {
-  const [numerosInput, setNumerosInput] = useState(['', '', '', '', '']);
-  const [numeroChanceInput, setNumeroChanceInput] = useState('');
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState('');
@@ -95,13 +93,15 @@ export default function LotoScreen() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [grillesModalVisible, setGrillesModalVisible] = useState(false);
-  const [modalGenererVisible, setModalGenererVisible] = useState(false);
+  const [modalGenererVisible, setModalGenererVisible] = useState(false); 
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState('');
   const [secondTirageGenerer, setSecondTirageGenerer] = useState(false);
   const [modalInfoVisible, setModalInfoVisible] = useState(false);
   const [gainDernierTour, setGainDernierTour] = useState(0);
-  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false); 
-  const [historiqueLoto, setHistoriqueLoto] = useState([]); 
+  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false);
+  const [historiqueLoto, setHistoriqueLoto] = useState([]);
+
+  const [ajouterModalVisible, setAjouterModalVisible] = useState(false);
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -158,131 +158,65 @@ export default function LotoScreen() {
     });
   };
 
-  const ajouterGrille = () => {
-    try {
-      const numerosUtilisateur = [...new Set(numerosInput.map(num => parseInt(num)))];
-      const numeroChanceUtilisateur = parseInt(numeroChanceInput);
-
-      if (
-        numerosUtilisateur.length !== 5 ||
-        numerosUtilisateur.some(num => isNaN(num) || num < 1 || num > 49)
-      ) {
-        throw new Error('Veuillez entrer 5 numéros uniques entre 1 et 49.');
-      }
-      if (
-        isNaN(numeroChanceUtilisateur) ||
-        numeroChanceUtilisateur < 1 ||
-        numeroChanceUtilisateur > 10
-      ) {
-        throw new Error('Veuillez entrer un numéro chance entre 1 et 10.');
-      }
-
-      setGrilles((prevGrilles) => [
-        ...prevGrilles,
-        { numeros: numerosUtilisateur, chance: numeroChanceUtilisateur, secondTirage: false }
-      ]);
-
-      setNumerosInput(['', '', '', '', '']);
-      setNumeroChanceInput('');
-    } catch (error) {
-      Alert.alert('Erreur', error.message);
-    }
-  };
-
-  const genererGrillesAleatoires = () => {
-    try {
-      const nombre = parseInt(nombreGrillesAGenerer);
-      if (isNaN(nombre) || nombre < 1 || nombre > 1000) {
-        throw new Error('Veuillez entrer un nombre entre 1 et 1000.');
-      }
-
-      const nouvellesGrilles = [];
-      for (let i = 0; i < nombre; i++) {
-        const numeros = getRandomUniqueNumbers(5, 1, 49);
-        const chance = getRandomNumber(1, 10);
-        nouvellesGrilles.push({
-          numeros: numeros,
-          chance: chance,
-          secondTirage: secondTirageGenerer,
-        });
-      }
-
-      setGrilles((prevGrilles) => [...prevGrilles, ...nouvellesGrilles]);
-      setModalGenererVisible(false);
-      setNombreGrillesAGenerer('');
-      setSecondTirageGenerer(false);
-    } catch (error) {
-      Alert.alert('Erreur', error.message);
-    }
-  };
-
   const jouer = () => {
     if (grilles.length === 0) {
       Alert.alert('Info', 'Veuillez ajouter au moins une grille avant de jouer.');
       return;
     }
-
+  
     const coutTotalGrilles = grilles.reduce(
       (acc, grille) => acc + 2 + (grille.secondTirage ? 1 : 0),
       0
     );
-
+  
     if (solde < coutTotalGrilles) {
       Alert.alert('Erreur', 'Solde insuffisant pour jouer.');
       return;
     }
-
+  
     setSolde((prevSolde) => prevSolde - coutTotalGrilles);
     setTotalDepense((prevTotalDepense) => prevTotalDepense + coutTotalGrilles);
     setNombreTours((prevNombreTours) => prevNombreTours + 1);
-
+  
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
     const numeroChanceTire = getRandomNumber(1, 10);
-
     const numerosSecondTires = getRandomUniqueNumbers(5, 1, 49);
-
+  
     lancerAnimationTirage(() => {
       setNumerosTirage(numerosTires);
       setNumeroChanceTirage(numeroChanceTire);
       setNumerosSecondTirage(numerosSecondTires);
-
+  
       setHistoriqueLoto((prevHistorique) => [
         ...prevHistorique,
         { numerosTires, numeroChanceTire }
       ]);
-
+  
       let gainTotalTour = 0;
       let newMeilleurGain = meilleurGain;
-      let jackpotGagne = false;
       const tempResultatsGrilles = [];
-
+  
       grilles.forEach((grille) => {
         const gain = calculerGains(grille.numeros, grille.chance, numerosTires, numeroChanceTire);
         const numerosTrouves = grille.numeros.filter(num => numerosTires.includes(num));
         const chanceTrouve = grille.chance === numeroChanceTire;
-
+  
         let gainSecond = 0;
         let numerosSecondTrouves = [];
-
+  
         if (grille.secondTirage) {
-          gainSecond = calculerGains(
-            grille.numeros,
-            0,
-            numerosSecondTires,
-            0,
-            true
-          );
+          gainSecond = calculerGains(grille.numeros, 0, numerosSecondTires, 0, true);
           numerosSecondTrouves = grille.numeros.filter(num => numerosSecondTires.includes(num));
         }
-
+  
         let gainTotalGrille = gain > 0 ? gain : 0;
         gainTotalGrille += gainSecond > 0 ? gainSecond : 0;
-
+  
         if (gainTotalGrille > newMeilleurGain) {
           newMeilleurGain = gainTotalGrille;
         }
         gainTotalTour += gainTotalGrille;
-
+  
         tempResultatsGrilles.push({
           numeros: grille.numeros,
           chance: grille.chance,
@@ -294,20 +228,20 @@ export default function LotoScreen() {
           gainSecond: gainSecond > 0 ? gainSecond : null,
         });
       });
-
-      if (!jackpotGagne) {
-        setJackpot((prevJackpot) => prevJackpot + 1000000);
-      }
-
+  
       setMeilleurGain(newMeilleurGain);
       setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
       setSolde((prevSolde) => prevSolde + gainTotalTour);
       setResultatsGrilles(tempResultatsGrilles);
+      
 
+      setJackpot((prevJackpot) => prevJackpot + 1000000);
+  
       setGainDernierTour(gainTotalTour);
       setModalVisible(true);
     });
   };
+  
 
   const deposerSolde = () => {
     try {
@@ -322,31 +256,19 @@ export default function LotoScreen() {
     }
   };
 
-  const reinitialiserGrilles = () => {
-    Alert.alert(
-      'Confirmer',
-      'Voulez-vous vraiment réinitialiser toutes les grilles?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Réinitialiser',
-          onPress: () => {
-            setGrilles([]);
-            setResultatsGrilles([]);
-          },
-        },
-      ]
-    );
+  const ajouterGrille = (numeros, numeroChance) => {
+    setGrilles([...grilles, { numeros, chance: numeroChance, secondTirage: false }]);
   };
 
-  const flashNumeros = () => {
-    const numerosAleatoires = getRandomUniqueNumbers(5, 1, 49).map(num => num.toString());
-    setNumerosInput(numerosAleatoires);
-  };
-
-  const flashNumeroChance = () => {
-    const numeroAleatoire = getRandomNumber(1, 10).toString();
-    setNumeroChanceInput(numeroAleatoire);
+  const genererGrillesAleatoires = () => {
+    const nouvellesGrilles = [];
+    for (let i = 0; i < parseInt(nombreGrillesAGenerer); i++) {
+      const numeros = getRandomUniqueNumbers(5, 1, 49);
+      const chance = getRandomNumber(1, 10);
+      nouvellesGrilles.push({ numeros, chance, secondTirage: secondTirageGenerer });
+    }
+    setGrilles([...grilles, ...nouvellesGrilles]);
+    setModalGenererVisible(false);
   };
 
   return (
@@ -357,34 +279,25 @@ export default function LotoScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScrollView contentContainerStyle={styles.content}>
-          <LottieView
-        source={require('../assets/stars.json')} 
-        autoPlay
-        loop
-        style={styles.lottieBackground} 
-      />
+            <LottieView
+              source={require('../assets/stars.json')}
+              autoPlay
+              loop
+              style={styles.lottieBackground}
+            />
             <Header onInfoPress={() => setModalInfoVisible(true)} />
             <JackpotDisplay jackpot={jackpot} jackpotAnimation={jackpotAnimation} />
 
             <View style={styles.inputSection}>
-              <Text style={styles.sectionTitle}>Créer une Grille:</Text>
-              <NumberInput
-                numeros={numerosInput}
-                onChangeNumero={(index, text) => {
-                  const newNumeros = [...numerosInput];
-                  newNumeros[index] = text.replace(/[^0-9]/g, '');
-                  setNumerosInput(newNumeros);
-                }}
-                onFlashPress={flashNumeros}
-              />
-              <ChanceNumberInput
-                numeroChance={numeroChanceInput}
-                onChangeChance={(text) => setNumeroChanceInput(text.replace(/[^0-9]/g, ''))}
-                onFlashPress={flashNumeroChance}
-              />
-              <TouchableOpacity style={styles.addButton} onPress={ajouterGrille}>
-                <Text style={styles.buttonText}>Ajouter Grille</Text>
+              
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setAjouterModalVisible(true)}
+              >
+                <Text style={styles.buttonText}>Ajouter une Grille</Text>
               </TouchableOpacity>
+
+              {/* Bouton pour générer des grilles */}
               <TouchableOpacity
                 style={styles.genererButton}
                 onPress={() => setModalGenererVisible(true)}
@@ -401,7 +314,7 @@ export default function LotoScreen() {
                 >
                   <Text style={styles.buttonText}>({grilles.length})</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.resetButton} onPress={reinitialiserGrilles}>
+                <TouchableOpacity style={styles.resetButton} onPress={() => setGrilles([])}>
                   <FontAwesome name="refresh" size={20} color="white" />
                 </TouchableOpacity>
               </View>
@@ -438,7 +351,6 @@ export default function LotoScreen() {
               </TouchableOpacity>
             )}
 
-            {/* Icone pour ouvrir la modal historique */}
             <TouchableOpacity
               style={styles.historiqueButton}
               onPress={() => setHistoriqueModalVisible(true)}
@@ -446,6 +358,12 @@ export default function LotoScreen() {
               <FontAwesome name="book" size={30} color="#FFFFFF" />
             </TouchableOpacity>
           </ScrollView>
+
+          <AjouterModal
+            visible={ajouterModalVisible}
+            onClose={() => setAjouterModalVisible(false)}
+            onAddGrille={ajouterGrille}
+          />
 
           <InfoModal
             visible={modalInfoVisible}
@@ -466,7 +384,7 @@ export default function LotoScreen() {
             visible={grillesModalVisible}
             onClose={() => setGrillesModalVisible(false)}
             grilles={grilles}
-            toggleSecondTirage={toggleSecondTirage} // Correction
+            toggleSecondTirage={toggleSecondTirage}
           />
 
           <ResultsModal
@@ -484,7 +402,6 @@ export default function LotoScreen() {
             resultatsGrilles={resultatsGrilles}
           />
 
-          {/* Modal Historique */}
           <LotoHistoriqueModal
             modalVisible={historiqueModalVisible}
             setModalVisible={setHistoriqueModalVisible}
@@ -499,7 +416,7 @@ export default function LotoScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#2C77AF', 
+    backgroundColor: '#2C77AF',
   },
   container: {
     marginTop: 30,
@@ -526,22 +443,22 @@ const styles = StyleSheet.create({
   buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '60%', 
+    width: '60%',
     marginVertical: 10,
   },
   grillesButton: {
     backgroundColor: '#0055A4',
-    flex: 1, 
+    flex: 1,
     marginRight: 5,
-    height: 45, 
+    height: 45,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
   },
   resetButton: {
     backgroundColor: '#E50000',
-    flex: 1, 
-    height: 45, 
+    flex: 1,
+    height: 45,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
@@ -551,12 +468,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
-  },
-  lottieBackground: {
-    position: 'absolute',
-    width: 800,
-    height: 800,
-    top: '5%',
   },
   depotRow: {
     flexDirection: 'row',
@@ -574,14 +485,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     fontSize: 16,
   },
-  addButton: {
+  depotButton: {
     backgroundColor: '#E50000',
+    paddingVertical: 8,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    alignItems: 'center',
+    height: 45,
+    justifyContent: 'center',
+  },
+  addButton: {
+    backgroundColor: '#0055A4',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
     marginVertical: 10,
     width: '60%',
-    height: 45, 
+    height: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -590,26 +510,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginTop: 10,
-    width: '60%', 
-    height: 45, 
+    marginVertical: 10,
+    width: '60%',
+    height: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
   genererButtonText: {
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 16, 
+    fontSize: 16,
     textAlign: 'center',
-  },
-  depotButton: {
-    backgroundColor: '#E50000',
-    paddingVertical: 8,
-    paddingHorizontal: 25,
-    borderRadius: 5,
-    alignItems: 'center',
-    height: 45, 
-    justifyContent: 'center',
   },
   playButton: {
     backgroundColor: '#0055A4',
@@ -618,7 +529,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 10,
     width: '60%',
-    height: 45, 
+    height: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -629,5 +540,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#0055A4',
     padding: 10,
     borderRadius: 50,
+  },
+  lottieBackground: {
+    position: 'absolute',
+    width: 800,
+    height: 800,
+    top: '5%',
   },
 });
