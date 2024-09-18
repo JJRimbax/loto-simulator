@@ -24,6 +24,7 @@ import InfoModal from '../components/InfoModal';
 import GenerateGrillesModal from '../components/GenerateGrillesModal';
 import GrillesModal from '../components/GrillesModal';
 import ResultsModal from '../components/ResultsModal';
+import LotoStatModal from '../components/LotoStatModal';  // Import de la modal de stats
 import LottieView from 'lottie-react-native';
 
 const getRandomNumber = (min, max) => {
@@ -38,46 +39,7 @@ const getRandomUniqueNumbers = (count, min, max) => {
   return Array.from(numbers);
 };
 
-// Fonction calculerGains manquante
-const calculerGains = (
-  numerosJoueur,
-  numeroChanceJoueur,
-  numerosTirage,
-  numeroChanceTirage,
-  secondTirage = false
-) => {
-  const nbNumerosCorrects = numerosJoueur.filter(num =>
-    numerosTirage.includes(num)
-  ).length;
-  const chanceCorrecte = numeroChanceJoueur === numeroChanceTirage;
-
-  if (secondTirage) {
-    const gainsSecond = {
-      2: 2,
-      3: 10,
-      4: 1000,
-      5: 100000,
-    };
-    return gainsSecond[nbNumerosCorrects] || 0;
-  } else {
-    const gains = {
-      '0true': 2,
-      '1true': 2,
-      '2false': 4,
-      '2true': 10,
-      '3false': 20,
-      '3true': 50,
-      '4false': 400,
-      '4true': 1000,
-      '5false': 100000,
-      '5true': 'Jackpot',
-    };
-    const key = `${nbNumerosCorrects}${chanceCorrecte}`;
-    return gains[key] || 0;
-  }
-};
-
-export default function LotoScreen() {
+const LotoScreen = () => {
   const [grilles, setGrilles] = useState([]);
   const [solde, setSolde] = useState(0);
   const [depot, setDepot] = useState('');
@@ -100,8 +62,11 @@ export default function LotoScreen() {
   const [gainDernierTour, setGainDernierTour] = useState(0);
   const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false);
   const [historiqueLoto, setHistoriqueLoto] = useState([]);
-
   const [ajouterModalVisible, setAjouterModalVisible] = useState(false);
+  const [statModalVisible, setStatModalVisible] = useState(false); // État pour la modal des statistiques
+
+  const [numeroStats, setNumeroStats] = useState(Array.from({ length: 49 }, (_, i) => ({ number: i + 1, count: 0 })));
+  const [chanceStats, setChanceStats] = useState(Array.from({ length: 10 }, (_, i) => ({ number: i + 1, count: 0 })));
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -181,6 +146,18 @@ export default function LotoScreen() {
     const numerosTires = getRandomUniqueNumbers(5, 1, 49);
     const numeroChanceTire = getRandomNumber(1, 10);
     const numerosSecondTires = getRandomUniqueNumbers(5, 1, 49);
+
+    // Mise à jour des statistiques des numéros et numéro chance
+    setNumeroStats((prevStats) =>
+      prevStats.map(stat =>
+        numerosTires.includes(stat.number) ? { ...stat, count: stat.count + 1 } : stat
+      )
+    );
+    setChanceStats((prevStats) =>
+      prevStats.map(stat =>
+        stat.number === numeroChanceTire ? { ...stat, count: stat.count + 1 } : stat
+      )
+    );
   
     lancerAnimationTirage(() => {
       setNumerosTirage(numerosTires);
@@ -233,10 +210,7 @@ export default function LotoScreen() {
       setTotalGains((prevTotalGains) => prevTotalGains + gainTotalTour);
       setSolde((prevSolde) => prevSolde + gainTotalTour);
       setResultatsGrilles(tempResultatsGrilles);
-      
-
       setJackpot((prevJackpot) => prevJackpot + 1000000);
-  
       setGainDernierTour(gainTotalTour);
       setModalVisible(true);
     });
@@ -297,7 +271,6 @@ export default function LotoScreen() {
                 <Text style={styles.buttonText}>Ajouter une Grille</Text>
               </TouchableOpacity>
 
-              {/* Bouton pour générer des grilles */}
               <TouchableOpacity
                 style={styles.genererButton}
                 onPress={() => setModalGenererVisible(true)}
@@ -357,6 +330,13 @@ export default function LotoScreen() {
             >
               <FontAwesome name="book" size={30} color="#FFFFFF" />
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.statButton}
+              onPress={() => setStatModalVisible(true)}
+            >
+              <FontAwesome name="bar-chart" size={30} color="#FFFFFF" />
+            </TouchableOpacity>
           </ScrollView>
 
           <AjouterModal
@@ -407,11 +387,18 @@ export default function LotoScreen() {
             setModalVisible={setHistoriqueModalVisible}
             historiqueLoto={historiqueLoto}
           />
+
+          <LotoStatModal
+            visible={statModalVisible}
+            onClose={() => setStatModalVisible(false)}
+            numeroStats={numeroStats}
+            chanceStats={chanceStats}
+          />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   background: {
@@ -541,6 +528,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
   },
+  statButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: '#0055A4',
+    padding: 10,
+    borderRadius: 50,
+  },
   lottieBackground: {
     position: 'absolute',
     width: 800,
@@ -548,3 +543,5 @@ const styles = StyleSheet.create({
     top: '5%',
   },
 });
+
+export default LotoScreen;

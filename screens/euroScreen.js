@@ -24,7 +24,8 @@ import EuroGrillesModal from "../components/EuroGrillesModal";
 import EuroGenererModal from "../components/EuroGenererModal";
 import EuroInfoModal from "../components/EuroInfoModal";
 import EuroMillionsHistoriqueModal from "../components/EuroMillionsHistoriqueModal";
-import LottieView from 'lottie-react-native'; 
+import StatModal from "../components/StatModal";
+import LottieView from "lottie-react-native";
 
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -56,9 +57,14 @@ const EuroScreen = () => {
   const [nombreGrillesAGenerer, setNombreGrillesAGenerer] = useState("");
   const [modalInfoVisible, setModalInfoVisible] = useState(false);
   const [gainDernierTour, setGainDernierTour] = useState(0);
-  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false); 
-  const [historiqueEuro, setHistoriqueEuro] = useState([]); 
-  const [ajouterModalVisible, setAjouterModalVisible] = useState(false); 
+  const [historiqueModalVisible, setHistoriqueModalVisible] = useState(false);
+  const [statModalVisible, setStatModalVisible] = useState(false); // Visible pour la modal de statistiques
+  const [historiqueEuro, setHistoriqueEuro] = useState([]);
+  const [ajouterModalVisible, setAjouterModalVisible] = useState(false);
+  const [stats, setStats] = useState({
+    numeros: Array.from({ length: 50 }, (_, i) => ({ number: i + 1, count: 0 })),
+    etoiles: Array.from({ length: 12 }, (_, i) => ({ number: i + 1, count: 0 })),
+  });
 
   const circleAnimations = useRef([
     new Animated.Value(0),
@@ -219,6 +225,9 @@ const EuroScreen = () => {
       setResultatsGrilles(tempResultatsGrilles);
       setGainDernierTour(gainTotalTour);
       setModalVisible(true);
+
+      // Mettre à jour les statistiques
+      updateStats(numerosTires, etoilesTires);
     });
   };
 
@@ -292,6 +301,25 @@ const EuroScreen = () => {
     return gain;
   };
 
+  const updateStats = (numerosTires, etoilesTires) => {
+    setStats((prevStats) => {
+      const updatedNumeros = prevStats.numeros.map((stat) => ({
+        ...stat,
+        count: stat.count + (numerosTires.includes(stat.number) ? 1 : 0),
+      }));
+
+      const updatedEtoiles = prevStats.etoiles.map((stat) => ({
+        ...stat,
+        count: stat.count + (etoilesTires.includes(stat.number) ? 1 : 0),
+      }));
+
+      return {
+        numeros: updatedNumeros,
+        etoiles: updatedEtoiles,
+      };
+    });
+  };
+
   const lancerAnimationTirage = (callback) => {
     setIsAnimating(true);
     circleAnimations.forEach((anim) => anim.setValue(0));
@@ -317,30 +345,34 @@ const EuroScreen = () => {
         >
           <ScrollView contentContainerStyle={styles.content}>
             <LottieView
-              source={require('../assets/stars.json')} 
+              source={require("../assets/stars.json")}
               autoPlay
               loop
-              style={styles.lottieBackground} 
+              style={styles.lottieBackground}
             />
             {/* Header */}
             <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
+
+            {/* Jackpot */}
             <EuroJackpot jackpotAnimation={jackpotAnimation} jackpot={jackpot} />
-            <View style={styles.inputSection}>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => setAjouterModalVisible(true)}
-              >
-                <Text style={styles.buttonText}>Ajouter Grille</Text>
-              </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.genererButton}
-                onPress={() => setModalGenererVisible(true)}
-              >
-                <Text style={styles.genererButtonText}>Générer des Grilles</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Bouton pour ajouter une grille */}
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setAjouterModalVisible(true)}
+            >
+              <Text style={styles.buttonText}>Ajouter Grille</Text>
+            </TouchableOpacity>
 
+            {/* Bouton pour générer des grilles */}
+            <TouchableOpacity
+              style={styles.genererButton}
+              onPress={() => setModalGenererVisible(true)}
+            >
+              <Text style={styles.genererButtonText}>Générer des Grilles</Text>
+            </TouchableOpacity>
+
+            {/* Boutons pour les grilles (si au moins une grille est ajoutée) */}
             {grilles.length > 0 && (
               <View style={styles.buttonsRow}>
                 <TouchableOpacity
@@ -359,6 +391,7 @@ const EuroScreen = () => {
               </View>
             )}
 
+            {/* Dépôt du solde */}
             <View style={styles.inputSection}>
               <Text style={styles.sectionTitle}>Déposer Solde:</Text>
               <View style={styles.depotRow}>
@@ -366,16 +399,11 @@ const EuroScreen = () => {
                   style={styles.input}
                   keyboardType="numeric"
                   value={depot}
-                  onChangeText={(text) =>
-                    setDepot(text.replace(/[^0-9.]/g, ""))
-                  }
+                  onChangeText={(text) => setDepot(text.replace(/[^0-9.]/g, ""))}
                   placeholder="Montant"
                   placeholderTextColor="#AAAAAA"
                 />
-                <TouchableOpacity
-                  style={styles.depotButton}
-                  onPress={deposerSolde}
-                >
+                <TouchableOpacity style={styles.depotButton} onPress={deposerSolde}>
                   <Text style={styles.buttonText}>€</Text>
                 </TouchableOpacity>
               </View>
@@ -386,20 +414,18 @@ const EuroScreen = () => {
             {isAnimating ? (
               <EuroAnimation circleAnimations={circleAnimations} isAnimating={isAnimating} />
             ) : (
-              <TouchableOpacity
-                style={styles.playButton}
-                onPress={jouer}
-                disabled={isAnimating}
-              >
+              <TouchableOpacity style={styles.playButton} onPress={jouer} disabled={isAnimating}>
                 <Text style={styles.buttonText}>Jouer</Text>
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity
-              style={styles.historiqueButton}
-              onPress={() => setHistoriqueModalVisible(true)}
-            >
+            <TouchableOpacity style={styles.historiqueButton} onPress={() => setHistoriqueModalVisible(true)}>
               <FontAwesome name="book" size={30} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            {/* Bouton pour ouvrir la modal des statistiques */}
+            <TouchableOpacity style={styles.statButton} onPress={() => setStatModalVisible(true)}>
+              <FontAwesome name="bar-chart" size={30} color="#FFFFFF" />
             </TouchableOpacity>
           </ScrollView>
 
@@ -439,15 +465,19 @@ const EuroScreen = () => {
             etoilesTirage={etoilesTirage}
           />
 
-          <EuroInfoModal
-            modalInfoVisible={modalInfoVisible}
-            setModalInfoVisible={setModalInfoVisible}
-          />
+          <EuroInfoModal modalInfoVisible={modalInfoVisible} setModalInfoVisible={setModalInfoVisible} />
 
           <EuroMillionsHistoriqueModal
             modalVisible={historiqueModalVisible}
             setModalVisible={setHistoriqueModalVisible}
-            historiqueEuroMillions={historiqueEuro || []} 
+            historiqueEuroMillions={historiqueEuro || []}
+          />
+
+          <StatModal
+            visible={statModalVisible}
+            onClose={() => setStatModalVisible(false)}
+            numeroStats={stats.numeros}
+            etoileStats={stats.etoiles}
           />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -471,98 +501,106 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   inputSection: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginVertical: 10,
   },
   sectionTitle: {
     fontSize: 16,
     marginBottom: 8,
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
   buttonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '60%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "60%",
     marginVertical: 10,
   },
   grillesButton: {
-    backgroundColor: '#0055A4',
+    backgroundColor: "#0055A4",
     flex: 1,
     marginRight: 5,
     height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
   },
   resetButton: {
-    backgroundColor: '#FFC107',
+    backgroundColor: "#FFC107",
     flex: 1,
     height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   addButton: {
-    backgroundColor: '#0055A4',
+    backgroundColor: "#0055A4",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
     marginVertical: 10,
-    width: '60%',
+    width: "60%",
     height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   genererButton: {
-    backgroundColor: '#0055A4',
+    backgroundColor: "#0055A4",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
     marginVertical: 10,
-    width: '60%',
+    width: "60%",
     height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   genererButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   playButton: {
-    backgroundColor: '#0055A4',
+    backgroundColor: "#0055A4",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
     marginVertical: 10,
-    width: '60%',
+    width: "60%",
     height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   historiqueButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: '#0055A4',
+    backgroundColor: "#0055A4",
+    padding: 10,
+    borderRadius: 50,
+  },
+  statButton: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    backgroundColor: "#0055A4",
     padding: 10,
     borderRadius: 50,
   },
   lottieBackground: {
-    position: 'absolute',
+    position: "absolute",
     width: 800,
     height: 800,
-    top: '5%',
+    top: "5%",
   },
   depotRow: {
     flexDirection: "row",
