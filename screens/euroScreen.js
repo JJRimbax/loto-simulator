@@ -324,30 +324,23 @@ const EuroScreen = () => {
             />
             {/* Header */}
             <EuroHeader onInfoPress={() => setModalInfoVisible(true)} />
+            <EuroJackpot jackpotAnimation={jackpotAnimation} jackpot={jackpot} />
+            <View style={styles.inputSection}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setAjouterModalVisible(true)}
+              >
+                <Text style={styles.buttonText}>Ajouter Grille</Text>
+              </TouchableOpacity>
 
-            {/* Jackpot */}
-            <EuroJackpot
-              jackpotAnimation={jackpotAnimation}
-              jackpot={jackpot}
-            />
+              <TouchableOpacity
+                style={styles.genererButton}
+                onPress={() => setModalGenererVisible(true)}
+              >
+                <Text style={styles.genererButtonText}>Générer des Grilles</Text>
+              </TouchableOpacity>
+            </View>
 
-            {/* Bouton pour ajouter une grille */}
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setAjouterModalVisible(true)}
-            >
-              <Text style={styles.buttonText}>Ajouter Grille</Text>
-            </TouchableOpacity>
-
-            {/* Bouton pour générer des grilles */}
-            <TouchableOpacity
-              style={styles.genererButton}
-              onPress={() => setModalGenererVisible(true)}
-            >
-              <Text style={styles.buttonText}>Générer Grilles</Text>
-            </TouchableOpacity>
-
-            {/* Boutons pour les grilles (si au moins une grille est ajoutée) */}
             {grilles.length > 0 && (
               <View style={styles.buttonsRow}>
                 <TouchableOpacity
@@ -366,7 +359,6 @@ const EuroScreen = () => {
               </View>
             )}
 
-            {/* Dépôt du solde */}
             <View style={styles.inputSection}>
               <Text style={styles.sectionTitle}>Déposer Solde:</Text>
               <View style={styles.depotRow}>
@@ -392,10 +384,7 @@ const EuroScreen = () => {
             <EuroSoldeDisplay solde={solde} />
 
             {isAnimating ? (
-              <EuroAnimation
-                circleAnimations={circleAnimations}
-                isAnimating={isAnimating}
-              />
+              <EuroAnimation circleAnimations={circleAnimations} isAnimating={isAnimating} />
             ) : (
               <TouchableOpacity
                 style={styles.playButton}
@@ -406,12 +395,11 @@ const EuroScreen = () => {
               </TouchableOpacity>
             )}
 
-            {/* Modal pour l'historique */}
             <TouchableOpacity
               style={styles.historiqueButton}
               onPress={() => setHistoriqueModalVisible(true)}
             >
-              <FontAwesome name="book" size={24} color="white" />
+              <FontAwesome name="book" size={30} color="#FFFFFF" />
             </TouchableOpacity>
           </ScrollView>
 
@@ -479,57 +467,96 @@ const styles = StyleSheet.create({
   content: {
     alignItems: "center",
     paddingHorizontal: 10,
-    paddingVertical: -10,
+    paddingVertical: 10,
     flexGrow: 1,
   },
+  inputSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   buttonsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "60%",
-    marginVertical: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%',
+    marginVertical: 10,
   },
   grillesButton: {
-    backgroundColor: "#0055A4",
+    backgroundColor: '#0055A4',
     flex: 1,
     marginRight: 5,
     height: 45,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
   },
   resetButton: {
-    backgroundColor: "#FFC107",
+    backgroundColor: '#FFC107',
     flex: 1,
     height: 45,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
   },
   addButton: {
-    backgroundColor: "#0055A4",
+    backgroundColor: '#0055A4',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
     marginVertical: 10,
-    width: "60%",
-    alignItems: "center",
+    width: '60%',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   genererButton: {
-    backgroundColor: "#0055A4",
+    backgroundColor: '#0055A4',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
-    marginTop: 5,
-    width: "60%",
+    marginVertical: 10,
+    width: '60%',
     height: 45,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  genererButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  playButton: {
+    backgroundColor: '#0055A4',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: '60%',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historiqueButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#0055A4',
+    padding: 10,
+    borderRadius: 50,
   },
   lottieBackground: {
     position: 'absolute',
@@ -561,47 +588,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 45,
     justifyContent: "center",
-  },
-  soldeSectionMain: {
-    alignItems: "center",
-    marginVertical: 100,
-  },
-  soldeText: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    marginBottom: 2,
-    textShadowColor: "#000000",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
-  playButton: {
-    backgroundColor: "#0055A4",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 5,
-    marginVertical: 15,
-    width: "60%",
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginBottom: 8,
-    textShadowColor: "#000000",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
-  historiqueButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#0055A4",
-    padding: 12,
-    borderRadius: 30,
   },
 });
 
