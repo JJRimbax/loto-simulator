@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   balanceBox: {
-    backgroundColor: '#2C77AF',
+    backgroundColor: '#0055A4',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
