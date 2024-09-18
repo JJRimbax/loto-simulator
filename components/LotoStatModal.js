@@ -3,7 +3,6 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'rea
 import { FontAwesome } from '@expo/vector-icons';
 
 const LotoStatModal = ({ visible, onClose, numeroStats, chanceStats }) => {
-    
   const renderStats = (stats, color) => (
     <View style={styles.gridContainer}>
       {stats.map((stat, index) => (
@@ -27,7 +26,6 @@ const LotoStatModal = ({ visible, onClose, numeroStats, chanceStats }) => {
           <Text style={styles.modalTitle}>Tendances des numéros Loto</Text>
 
           <ScrollView contentContainerStyle={styles.statsContainer}>
-
             <Text style={styles.sectionTitle}>Numéros (1-49)</Text>
             {renderStats(numeroStats, 'blue')}
 
