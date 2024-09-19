@@ -7,8 +7,11 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Dimensions,
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône d'éclair
+import { FontAwesome } from '@expo/vector-icons'; 
+
+const { width, height } = Dimensions.get('window'); // Récupération des dimensions de l'écran
 
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -20,7 +23,7 @@ const getRandomUniqueNumbers = (count, min, max) => {
   return Array.from(numbers);
 };
 
-const EuroInputSection  = ({ visible, onClose, onAddGrille }) => {
+const EuroInputSection = ({ visible, onClose, onAddGrille }) => {
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [selectedStars, setSelectedStars] = useState([]);
 
@@ -130,7 +133,8 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#FFF',
     borderRadius: 10,
-    width: '90%',
+    width: width * 0.85, // Largeur ajustée
+    height: height * 0.9, // Hauteur ajustée à 90%
     padding: 20,
     alignItems: 'center',
   },
@@ -154,9 +158,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   numberCircle: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
+    width: width * 0.09, // Ajustement de la taille des cercles de numéros
+    height: width * 0.09,
+    borderRadius: (width * 0.09) / 2,
     backgroundColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
@@ -169,11 +173,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#0055A4',
   },
   selectedStar: {
-    backgroundColor: '#FFD700', 
+    backgroundColor: '#FFD700',
   },
   numberText: {
     color: '#000',
-    fontSize: 14,
+    fontSize: width * 0.04, // Ajustement de la taille du texte
     fontWeight: 'bold',
   },
   selectedNumberText: {
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: '#FFD700', 
+    backgroundColor: '#FFD700',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,

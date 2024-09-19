@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "LOTO",
-    "slug": "LOTO",
+    "name": "LottoGame",
+    "slug": "Lotto-Game",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,32 +12,19 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.jjrimbax.LOTO"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.jjrimbax.LOTO"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "8885bdb5-2998-482f-8b09-3d68836b281e"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/8885bdb5-2998-482f-8b09-3d68836b281e"
-    }
+    ]
   }
 }

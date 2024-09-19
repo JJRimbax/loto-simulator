@@ -7,8 +7,11 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Dimensions,
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Pour l'icône d'éclair
+import { FontAwesome } from '@expo/vector-icons'; 
+
+const { width, height } = Dimensions.get('window'); // Récupération des dimensions de l'écran
 
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -124,7 +127,8 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#FFF',
     borderRadius: 10,
-    width: '90%',
+    width: width * 0.85, 
+    height: height * 0.95,
     padding: 20,
     alignItems: 'center',
   },
@@ -148,9 +152,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   numberCircle: {
-    width: 35, // Réduction de la taille des numéros pour un meilleur affichage
-    height: 35,
-    borderRadius: 17.5,
+    width: width * 0.09, 
+    height: width * 0.09, 
+    borderRadius: (width * 0.1) / 2, 
     backgroundColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
@@ -167,11 +171,11 @@ const styles = StyleSheet.create({
   },
   numberText: {
     color: '#000',
-    fontSize: 14, // Réduction de la taille du texte
+    fontSize: width * 0.04,
     fontWeight: 'bold',
   },
   selectedNumberText: {
-    color: '#fff', // Le texte des numéros sélectionnés devient blanc
+    color: '#fff',
   },
   chanceGrid: {
     flexDirection: 'row',
@@ -180,8 +184,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   flashButton: {
-    flexDirection: 'row', // Alignement de l'icône et du texte
-    alignItems: 'center', // Centrage de l'icône avec le texte
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#0055A4',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   flashIcon: {
-    marginRight: 5, // Espacement entre l'icône et le texte
+    marginRight: 5,
   },
   flashButtonText: {
     color: '#fff',
