@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; 
 
-const { width, height } = Dimensions.get('window'); // Récupération des dimensions de l'écran
+const { width, height } = Dimensions.get('window'); 
 
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
