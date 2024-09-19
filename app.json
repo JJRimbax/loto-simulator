@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "LottoGame",
-    "slug": "Lotto-Game",
+    "name": "Lotto Game",
+    "slug": "LOTO",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -35,7 +35,7 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/c2e02422-65d9-4269-b941-91fb281c52d9"
+      "url": "https://u.expo.dev/8885bdb5-2998-482f-8b09-3d68836b281e"
     }
   }
 }
